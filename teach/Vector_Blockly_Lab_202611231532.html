@@ -1,0 +1,1337 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vector Blockly Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/blockly@11.2.1/blockly_compressed.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/blockly@11.2.1/msg/en.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<style>
+:root{
+  --hh:53px;
+  --bg:#f6f4ef; --panel:#ffffff; --panel2:#f1eee7; --ink:#1f2328; --muted:#5f6670; --line:#dcd7cc;
+  --accent:#d9822b; --accent-ink:#ffffff; --ok:#2f8a4c; --bad:#c0392b; --warn:#b7791f;
+  --code-bg:#fbfaf7; --hl:#fff1d6; --kw:#7b3fb3; --fn:#1d6fa5; --str:#a3501b; --num:#1b7f5b; --pre:#8a6d00; --com:#7c8590;
+  --cell:#fff; --cell-line:#c9c2b4; --cell-chg:#ffe3b3;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#16181c; --panel:#1f2227; --panel2:#262a30; --ink:#e7e9ec; --muted:#9aa2ad; --line:#353a42;
+    --accent:#f0a04b; --accent-ink:#1a1206; --ok:#5cc27e; --bad:#ef6b5d; --warn:#e8b04f;
+    --code-bg:#1a1d21; --hl:#3a3020; --kw:#c79bf2; --fn:#6fb6e8; --str:#f0a77a; --num:#7fd8ad; --pre:#e2c36b; --com:#7f8893;
+    --cell:#23272d; --cell-line:#4a505a; --cell-chg:#5a4320;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#16181c; --panel:#1f2227; --panel2:#262a30; --ink:#e7e9ec; --muted:#9aa2ad; --line:#353a42;
+  --accent:#f0a04b; --accent-ink:#1a1206; --ok:#5cc27e; --bad:#ef6b5d; --warn:#e8b04f;
+  --code-bg:#1a1d21; --hl:#3a3020; --kw:#c79bf2; --fn:#6fb6e8; --str:#f0a77a; --num:#7fd8ad; --pre:#e2c36b; --com:#7f8893;
+  --cell:#23272d; --cell-line:#4a505a; --cell-chg:#5a4320;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font:14px/1.5 "Noto Sans TC",system-ui,-apple-system,sans-serif}
+code,pre,.mono,textarea{font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;font-variant-ligatures:none}
+header{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--panel)}
+header h1{font-size:16px;margin:0;font-weight:700;letter-spacing:.2px}
+header h1 small{font-weight:400;color:var(--muted);margin-left:6px}
+.tabs-ex{display:flex;gap:6px;flex-wrap:wrap}
+.tabs-ex button{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:8px;padding:5px 10px;cursor:pointer;font:inherit;font-size:13px}
+.tabs-ex button small{font-size:11.5px;opacity:.8;margin-left:2px}
+.tabs-ex button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.app{display:grid;grid-template-columns:300px minmax(0,1.3fr) minmax(330px,1fr) minmax(300px,.95fr);height:calc(100vh - var(--hh));min-height:560px}
+.app.noprob{grid-template-columns:minmax(0,1.3fr) minmax(330px,1fr) minmax(300px,.95fr)}
+.app.noprob #problem{display:none}
+#mid,#flowCol{display:flex;flex-direction:column;border-left:1px solid var(--line);background:var(--panel);min-height:0}
+#flowWrap{flex:1;overflow:auto;background:var(--code-bg);min-height:0}
+.legend{font-weight:400;color:var(--muted);font-size:11.5px;white-space:normal}
+header{flex-wrap:nowrap}
+header h1{white-space:nowrap}
+.tabs-ex{flex:1 1 auto;min-width:0;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin}
+.tabs-ex button{white-space:nowrap;flex:0 0 auto}
+header>.btn{flex:0 0 auto;white-space:nowrap}
+@media (max-width:1500px){ header h1 small,.tabs-ex button small{display:none} }
+#wb{position:fixed;top:var(--hh);right:0;bottom:0;width:min(60vw,980px);min-width:360px;background:var(--panel);border-left:2px solid var(--accent);box-shadow:-8px 0 24px rgba(0,0,0,.18);display:flex;flex-direction:column;z-index:50}
+#wb[hidden]{display:none}
+#wb.full{width:100vw;top:0}
+#wb iframe{flex:1;border:0;width:100%;background:#fff}
+#wbStatus{font-weight:400}
+@media (max-width:760px){ #wb{width:100vw;min-width:0} }
+.tog.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.app>section{min-width:0;min-height:0}
+#problem{overflow:auto;padding:14px 16px;border-right:1px solid var(--line);background:var(--panel)}
+#problem h2{font-size:17px;margin:0 0 2px}
+#problem .lvl{color:var(--accent);font-weight:600;font-size:12px}
+#problem h3{font-size:13px;margin:14px 0 4px;color:var(--muted);text-transform:none}
+#problem p{margin:4px 0}
+#problem .zh{color:var(--muted)}
+#problem pre{background:var(--code-bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px;margin:4px 0;font-size:13px;white-space:pre-wrap}
+#problem ul{margin:4px 0;padding-left:18px}
+#problem li{margin:3px 0}
+#problem code{background:var(--panel2);padding:0 4px;border-radius:4px;font-size:12.5px}
+.predict{border-left:3px solid var(--accent);background:var(--panel2);padding:6px 10px;border-radius:0 6px 6px 0;margin-top:8px}
+#blocks{display:flex;flex-direction:column}
+.toolbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:8px 10px;border-bottom:1px solid var(--line);background:var(--panel)}
+.toolbar .sp{flex:1}
+.btn{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:7px;padding:5px 10px;cursor:pointer;font:inherit;font-size:13px}
+.btn:hover{border-color:var(--accent)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+select.btn{padding:5px 6px}
+.hint{color:var(--muted);font-size:12px}
+#blocklyDiv{flex:1;min-height:0;position:relative}
+.card-head{display:flex;align-items:center;gap:8px;white-space:nowrap;padding:8px 12px;border-bottom:1px solid var(--line);font-weight:600}
+.card-head .sp{flex:1}
+#codeWrap{flex:0 0 46%;overflow:auto;background:var(--code-bg);border-bottom:1px solid var(--line)}
+#code{margin:0;padding:8px 0;font-size:13px;line-height:1.55;counter-reset:ln}
+#code .ln{display:block;padding:0 12px 0 44px;position:relative;white-space:pre;cursor:pointer}
+#code .ln::before{counter-increment:ln;content:counter(ln);position:absolute;left:0;width:32px;text-align:right;color:var(--com);opacity:.7}
+#code .ln.sel{background:var(--hl)}
+#code .ln:hover{background:color-mix(in srgb,var(--hl) 55%,transparent)}
+.t-kw{color:var(--kw);font-weight:600}.t-fn{color:var(--fn)}.t-str{color:var(--str)}.t-num{color:var(--num)}.t-pre{color:var(--pre)}.t-com{color:var(--com)}
+.t-miss{background:var(--bad);color:#fff;border-radius:3px;padding:0 2px}
+.ptabs{display:flex;border-bottom:1px solid var(--line)}
+.ptabs button{flex:1;border:0;background:transparent;color:var(--muted);padding:8px;cursor:pointer;font:inherit;font-weight:600;border-bottom:2px solid transparent}
+.ptabs button.on{color:var(--ink);border-bottom-color:var(--accent)}
+.pane{flex:1;overflow:auto;padding:10px 12px;min-height:0}
+.pane[hidden]{display:none}
+label.small{font-size:12px;color:var(--muted);display:block;margin:6px 0 3px}
+textarea{width:100%;min-height:58px;resize:vertical;background:var(--code-bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:13px "JetBrains Mono",monospace}
+.chips{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.chips button{font-size:12px;padding:2px 8px}
+.row{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.outbox{background:var(--code-bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px;min-height:34px;white-space:pre-wrap;font:13px "JetBrains Mono",monospace;margin:0}
+.msg{padding:6px 10px;border-radius:6px;margin:6px 0;font-size:13px}
+.msg.err{background:color-mix(in srgb,var(--bad) 14%,transparent);color:var(--bad);border:1px solid color-mix(in srgb,var(--bad) 40%,transparent)}
+.msg.ok{background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok);border:1px solid color-mix(in srgb,var(--ok) 40%,transparent)}
+.msg.warn{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn);border:1px solid color-mix(in srgb,var(--warn) 40%,transparent)}
+table.res{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
+table.res th,table.res td{border:1px solid var(--line);padding:4px 6px;vertical-align:top;text-align:left}
+table.res td pre{margin:0;white-space:pre-wrap;font:12px "JetBrains Mono",monospace}
+.pass{color:var(--ok);font-weight:700}.fail{color:var(--bad);font-weight:700}.pe{color:var(--warn);font-weight:700}
+.trace-ctl{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.trace-ctl input[type=range]{flex:1;min-width:120px;accent-color:var(--accent)}
+.now{margin:8px 0;padding:6px 10px;background:var(--hl);border-radius:6px;font:13px "JetBrains Mono",monospace;white-space:pre-wrap}
+.vars{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.var{border:1px solid var(--cell-line);background:var(--cell);border-radius:6px;padding:3px 8px;font:13px "JetBrains Mono",monospace}
+.var b{color:var(--muted);font-weight:400;margin-right:4px}
+.var.chg,.cell.chg{background:var(--cell-chg)}
+.vec{margin:10px 0}
+.vec .vh{font:12.5px "JetBrains Mono",monospace;color:var(--muted);margin-bottom:3px}
+.cells{display:flex;flex-wrap:wrap;gap:0}
+.cellw{display:flex;flex-direction:column;align-items:center;position:relative;padding-top:16px}
+.cell{min-width:38px;height:34px;border:1.5px solid var(--cell-line);margin-left:-1.5px;display:flex;align-items:center;justify-content:center;background:var(--cell);font:13px "JetBrains Mono",monospace;padding:0 4px}
+.cellw:first-child .cell{margin-left:0}
+.idx{font:11px "JetBrains Mono",monospace;color:var(--muted)}
+.ptr{position:absolute;top:0;font:11px "JetBrains Mono",monospace;color:var(--accent);font-weight:700}
+.cell.ptd{border-color:var(--accent);box-shadow:inset 0 0 0 1.5px var(--accent)}
+.empty-vec{color:var(--muted);font-style:italic;font-size:12px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+.seg button{border:0;background:var(--panel2);color:var(--muted);padding:4px 10px;font:inherit;font-size:13px;cursor:pointer}
+.seg button.on{background:var(--accent);color:var(--accent-ink);font-weight:600}
+#codeWrap.big{flex-basis:72%}
+#flow{padding:10px;text-align:center}
+#flow svg{max-width:none;height:auto}
+#flow .node{cursor:pointer}
+#flow .node.fc-cur rect,#flow .node.fc-cur polygon,#flow .node.fc-cur path{fill:#ffd27a !important;stroke:#d9822b !important;stroke-width:3px !important}
+#flow .node.fc-cur .nodeLabel,#flow .node.fc-cur text{color:#1f2328 !important;fill:#1f2328 !important}
+#flow .node.fc-sel rect,#flow .node.fc-sel polygon,#flow .node.fc-sel path{stroke:#d9822b !important;stroke-width:2.5px !important;stroke-dasharray:5 3}
+@media (max-width:1100px){
+  .app,.app.noprob{grid-template-columns:minmax(0,1fr) minmax(0,1fr);height:auto}
+  #problem{grid-column:1 / -1;max-height:300px;border-right:0;border-bottom:1px solid var(--line)}
+  #blocks{grid-column:1 / -1;height:62vh;min-height:460px}
+  #mid,#flowCol{height:80vh;min-height:520px;border-top:1px solid var(--line)}
+  #mid{border-left:0}
+}
+@media (max-width:760px){
+  .app,.app.noprob{display:block}
+  #blocks{height:70vh}
+  #mid,#flowCol{height:auto;border-left:0}
+  #codeWrap{max-height:50vh}
+  #flowWrap{max-height:70vh}
+  .pane{overflow:visible}
+}
+/* Projector mode 投影模式 */
+html.proj body{font-size:16px}
+html.proj header h1{font-size:20px}
+html.proj .btn,html.proj .tabs-ex button,html.proj .ptabs button{font-size:15px}
+html.proj #code,html.proj .outbox,html.proj textarea,html.proj .now,html.proj .var,html.proj .cell{font-size:17px}
+html.proj .cell{min-width:46px;height:42px}
+html.proj #problem pre,html.proj #problem code{font-size:15px}
+html.proj .hint,html.proj label.small,html.proj .legend{font-size:14px}
+html.proj table.res,html.proj table.res td pre{font-size:15px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Unit 4 · Vector Blockly Lab <small>積木學 C++ vector</small></h1>
+  <div class="tabs-ex" id="exTabs"></div>
+  <span class="sp"></span>
+  <button class="btn tog" id="bProb" title="Show / hide the problem / 顯示或隱藏題目">📄 Problem 題目</button>
+  <button class="btn tog" id="bWb" title="Notes and drawings for this example / 本題的白板筆記">📝 Whiteboard 白板筆記</button>
+  <button class="btn tog" id="bProj" title="Bigger text for the projector / 放大字體">🖥 Projector 投影</button>
+</header>
+<main class="app">
+  <section id="problem"></section>
+  <section id="blocks">
+    <div class="toolbar">
+      <button class="btn" id="bStarter" title="Load starter blocks / 載入起始積木">Starter 起始</button>
+      <select class="btn" id="ansSel"></select>
+      <button class="btn" id="bClear" title="Keep only int main() / 只保留主程式">Clear 清空</button>
+      <button class="btn" id="bUndo" title="Undo / 復原">↶</button>
+      <button class="btn" id="bRedo" title="Redo / 重做">↷</button>
+      <span class="sp"></span>
+      <span class="hint" id="wsHint">Drag blocks into int main() / 把積木拖進 int main()</span>
+    </div>
+    <div id="blocklyDiv"></div>
+  </section>
+  <section id="mid">
+    <div class="card-head">C++ Code 程式碼 <span class="legend">click a line → block 點行找積木</span><span class="sp"></span><button class="btn" id="bCopy">Copy 複製</button></div>
+    <div id="codeWrap"><pre id="code"></pre></div>
+    <div class="ptabs"><button class="on" data-p="run">Run &amp; Test 執行測試</button><button data-p="trace">Trace 逐步追蹤</button></div>
+    <div class="pane" id="pane-run">
+      <label class="small">Input 輸入（stdin）</label>
+      <textarea id="inp" spellcheck="false"></textarea>
+      <div class="chips" id="inChips"></div>
+      <div class="row">
+        <button class="btn pri" id="bRun">▶ Run 執行</button>
+        <button class="btn" id="bTest">✓ Test all 全部測試</button>
+      </div>
+      <div id="runMsg"></div>
+      <label class="small">Output 輸出（␣ = space 空格）</label>
+      <pre class="outbox" id="out"></pre>
+      <div id="testRes"></div>
+    </div>
+    <div class="pane" id="pane-trace" hidden>
+      <div class="trace-ctl">
+        <button class="btn pri" id="tStart">● Start 開始</button>
+        <button class="btn" id="tPrev">◀</button>
+        <button class="btn" id="tPlay">▶ Play</button>
+        <button class="btn" id="tNext">▶|</button>
+        <input type="range" id="tSlider" min="0" max="0" value="0">
+      </div>
+      <div class="hint" id="tInfo">Uses the input in Run &amp; Test. Each step shows values <b>before</b> the highlighted block runs. / 使用「執行測試」的輸入；每一步顯示「執行高亮積木之前」的數值。</div>
+      <div id="tMsg"></div>
+      <div class="now" id="tNow" hidden></div>
+      <div class="vars" id="tVars"></div>
+      <div id="tVecs"></div>
+      <label class="small">Output so far 目前輸出</label>
+      <pre class="outbox" id="tOut"></pre>
+    </div>
+  </section>
+  <section id="flowCol">
+    <div class="card-head">Flowchart 流程圖 <span class="legend">◇ decision 判斷　▱ input/output 輸入輸出　▭ step 步驟</span><span class="sp"></span><button class="btn" id="bCopyMm" title="Copy as Mermaid for .md notes / 複製到 .md 筆記">Copy Mermaid</button></div>
+    <div id="flowWrap"><div id="flow"></div></div>
+  </section>
+</main>
+<aside id="wb" hidden aria-label="Whiteboard 白板筆記">
+  <div class="card-head">📝 Whiteboard 白板筆記 <span class="legend" id="wbTitle"></span><span class="hint" id="wbStatus"></span><span class="sp"></span>
+    <button class="btn" id="wbFull" title="Full screen / 全螢幕">⤢</button><button class="btn" id="wbClose" title="Close / 收起">✕</button></div>
+</aside>
+
+<script>
+"use strict";
+/* ================= Examples ================= */
+const EX = [
+ { id:'4-0', title:'Store and Print', zh:'存入及輸出', lvl:'Level 0 ★',
+   en:'Read N integers into a vector, then print the vector in the same order.',
+   zhs:'把 N 個整數存入 vector，再按原本次序印出。',
+   inF:'Line 1: N. Line 2: N integers. / 第一行 N；第二行 N 個整數。',
+   outF:'All values on one line, separated by single spaces. / 一行輸出，以單一空格分隔。',
+   cons:'1 ≤ N ≤ 100; |value| ≤ 10^6',
+   tests:[['4\n7 2 9 5','7 2 9 5'],['1\n-3','-3'],['6\n0 0 1 -1 100 5','0 0 1 -1 100 5']],
+   predict:'Before printing v[1], will a space be printed first? / 印出 v[1] 前，會否先印一個空格？',
+   hint:'Loop 1: <code>cin &gt;&gt; x</code> → <code>v.push_back(x)</code>. Loop 2: print a space before every value except the first.',
+   mistakes:['Space after every value → extra space at line end. / 每個數之後都印空格 → 行末多了空格。',
+             'Using <code>v[i]</code> on an empty vector before <code>push_back</code> → out of range. / 空 vector 直接寫 v[i] → 越界。'],
+   tries:['Load <b>Answer · Shorthand</b> and compare the blocks with Long form. / 比較完整寫法與簡寫的積木。',
+          'Remove the <code>if (i &gt; 0)</code> block, then Test all — what changes? / 拿走 if 積木再測試，結果有何不同？'],
+   answers:[['Answer · Long form 完整寫法', ()=>ans40long()],['Answer · Shorthand 簡寫', ()=>ans40short()]] },
+ { id:'4-1', title:'Vector Sum', zh:'vector 總和', lvl:'Level 1 ★★',
+   en:'Read N integers into a vector and print their sum.',
+   zhs:'讀入 vector 並計算總和。',
+   inF:'Line 1: N. Line 2: N integers. / 第一行 N；第二行 N 個整數。',
+   outF:'Print the sum. / 輸出總和。',
+   cons:'1 ≤ N ≤ 100; |value| ≤ 10^6',
+   tests:[['5\n10 25 76 45 78','234'],['3\n-5 5 -7','-7'],['1\n1000000','1000000']],
+   predict:'Before adding 25, what will v.size() and sum become? / 加入 25 前，v.size() 和 sum 會變成多少？',
+   hint:'<code>push_back(x)</code> and <code>sum += x</code> go inside the same loop.',
+   mistakes:['<code>int sum;</code> without <code>= 0</code> → garbage value. Try it in Trace! / 沒設 0 會得到亂數，可在「逐步追蹤」看到。',
+             '<code>sum = x</code> instead of <code>sum += x</code> → only the last value. / 只得到最後一個數。'],
+   tries:['Change <code>int sum = 0</code> to <code>int sum</code> (use the <code>int n, x</code> block) and Trace. / 改成未初始化再追蹤。',
+          'Also print <code>v.size()</code> on a new line. / 另起一行輸出 v.size()。',
+          'Load <b>Answer · for (int val : v)</b>: store first, then add with a range-for loop. / 先存入，再用範圍 for 計總和。'],
+   answers:[['Answer 參考答案', ()=>ans41()],['Answer · for (int val : v) 範圍 for', ()=>ans41range()]] },
+ { id:'4-2', title:'Positive Values in Reverse', zh:'正數倒序', lvl:'Level 2 ★★★',
+   en:'Read N integers. Store only the positive values in a vector, then print them in reverse input order.',
+   zhs:'只把正數加入 vector，再按輸入的相反次序輸出。',
+   inF:'Line 1: N. Line 2: N integers. / 第一行 N；第二行 N 個整數。',
+   outF:'Positive values separated by single spaces. Print EMPTY if there are none. / 沒有正數時輸出 EMPTY。',
+   cons:'1 ≤ N ≤ 100; |value| ≤ 10^6',
+   tests:[['6\n3 -2 8 0 -1 5','5 8 3'],['3\n-1 0 -4','EMPTY'],['4\n2 2 0 9','9 2 2']],
+   predict:'Before reading 0, will the vector size change? / 讀入 0 前，vector 長度會否改變？',
+   hint:'<code>if (x &gt; 0)</code> before <code>push_back(x)</code>. Reverse loop starts at <code>int(v.size()) - 1</code>.',
+   mistakes:['Starting at <code>int(v.size())</code> instead of <code>int(v.size()) - 1</code> → out of range. / 起點少了 −1 → 越界。',
+             'Forgetting the EMPTY case. / 忘記處理沒有正數的情況。'],
+   tries:['Change the start to <code>int(v.size())</code> and Run — read the error. / 改起點再執行，看錯誤訊息。',
+          'Store only even values instead (<code>x % 2 == 0</code>). / 改為只存偶數。'],
+   answers:[['Answer 參考答案', ()=>ans42()]] },
+ { id:'4-3', title:'Dice Frequency', zh:'骰子次數', lvl:'Level 3 ★★★★',
+   en:'Read N dice results (1–6). Count how many times each face appears.',
+   zhs:'讀入 N 次擲骰結果，統計 1 至 6 各出現多少次。',
+   inF:'Line 1: N. Line 2: N dice results. / 第一行 N；第二行 N 個點數。',
+   outF:'Six counts for faces 1 to 6, separated by single spaces. / 依次輸出 1 至 6 的次數。',
+   cons:'1 ≤ N ≤ 1000; 1 ≤ result ≤ 6',
+   tests:[['7\n1 6 2 6 3 2 6','1 2 1 0 0 3'],['6\n1 2 3 4 5 6','1 1 1 1 1 1'],['3\n5 5 5','0 0 0 0 3 0']],
+   predict:'Before reading the second 6, which counter changes, and to what value? / 讀入第二個 6 前，哪一格會改變、變成多少？',
+   hint:'<code>vector&lt;int&gt; freq(7, 0);</code> and <code>freq[x]++</code>. Index 0 is unused.',
+   mistakes:['<code>freq(6, 0)</code> then <code>freq[6]</code> → out of range (valid 0–5). / 只開 6 格 → freq[6] 越界。',
+             '<code>freq[i]++</code> instead of <code>freq[x]++</code>. / 用了次數 i 而不是點數 x。'],
+   tries:['Change 7 to 6 in <code>freq(7, 0)</code> and Run with the sample. / 改成 6 格再執行。',
+          'Print only faces that appear at least once. / 只輸出出現過的點數。'],
+   answers:[['Answer 參考答案', ()=>ans43()]] },
+ { id:'4-4', title:'Sort and Summarise', zh:'排序與統計', lvl:'Level 4 ★★★★★',
+   en:'Read N integers into a vector. Print the maximum, minimum, average, then all values in ascending order.',
+   zhs:'輸出最大值、最小值、兩位小數平均值及遞增排序結果。',
+   inF:'Line 1: N. Line 2: N integers. / 第一行 N；第二行 N 個整數。',
+   outF:'Line 1: max. Line 2: min. Line 3: average (2 d.p.). Line 4: sorted values. / 四行輸出。',
+   cons:'1 ≤ N ≤ 100; |value| ≤ 10^6',
+   tests:[['5\n4 2 9 1 6','9\n1\n4.40\n1 2 4 6 9'],['1\n-7','-7\n-7\n-7.00\n-7'],['4\n3 3 -1 10','10\n-1\n3.75\n-1 3 3 10']],
+   predict:'Before sorting, will sum change? Which values will be first and last? / 排序前，sum 會否改變？首尾會是哪兩個數？',
+   hint:'<code>sort(v.begin(), v.end())</code>; then <code>v[0]</code> is min and <code>v[v.size() - 1]</code> is max.',
+   mistakes:['<code>sum / v.size()</code> without <code>double( )</code> → integer division (4 instead of 4.40). / 整數除法。',
+             'Reading <code>v[v.size() - 1]</code> before sort → last input, not max. / 排序前讀尾 → 不是最大值。'],
+   tries:['Remove the <code>double( )</code> block and Test all. / 拿走 double( ) 再測試。',
+          'Move the <code>sort</code> block below the max/min output. / 把 sort 移到輸出之後。'],
+   answers:[['Answer 參考答案', ()=>ans44()]] }
+];
+
+/* ================= Block definitions ================= */
+const COL = {prog:'#5B6B7F', v:'#C0504D', io:'#2E86AB', vec:'#D9822B', loop:'#3C9D5D', logic:'#7B5EA7', math:'#4A69BD', free:'#455A64'};
+const NAME_RE = /^[A-Za-z_][A-Za-z0-9_]*$/;
+const TYPES = ['int', 'double', 'string', 'bool'];
+const ST = {previousStatement:null, nextStatement:null};
+const EXPR = {output:null};
+const fi = (name, text) => ({type:'field_input', name, text});
+const iv = name => ({type:'input_value', name});
+const is = name => ({type:'input_statement', name});
+const dd = (name, opts) => ({type:'field_dropdown', name, options:opts.map(o => Array.isArray(o) ? o : [o, o])});
+const tdd = (name, extra) => dd(name, TYPES.concat(extra || []));
+const lab = name => ({type:'field_label', name, text:'v'});
+
+Blockly.Extensions.register('names', function(){
+  ['VAR','NAME','VEC'].forEach(k => { const f = this.getField(k); if (f) f.setValidator(v => { v = v.trim(); return NAME_RE.test(v) ? v : null; }); });
+  const f = this.getField('NAMES');
+  if (f) f.setValidator(v => { const p = v.split(',').map(s => s.trim()); return p.every(s => NAME_RE.test(s)) ? p.join(', ') : null; });
+  const nf = this.getField('NUM');
+  if (nf) nf.setValidator(v => { v = v.trim(); return /^-?\d+(\.\d+)?$/.test(v) ? v : null; });
+});
+Blockly.Extensions.register('sync', function(){
+  const src = this.getField('VAR') ? 'VAR' : 'VEC';
+  this.setOnChange(() => { const v = this.getFieldValue(src); ['L1','L2'].forEach(k => { if (this.getField(k) && this.getFieldValue(k) !== v) this.setFieldValue(v, k); }); });
+});
+
+/* cin / cout with + / − to chain more items */
+const icon = (sign) => 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"><circle cx="9" cy="9" r="8" fill="#fff"/><path d="${sign === '+' ? 'M9 5v8M5 9h8' : 'M5 9h8'}" stroke="#2E86AB" stroke-width="2.2" stroke-linecap="round"/></svg>`);
+function chainBlock(kind){
+  const sym = kind === 'cin' ? '>>' : '<<';
+  return {
+    init(){
+      this.items_ = 1;
+      this.setColour(COL.io); this.setPreviousStatement(true); this.setNextStatement(true); this.setInputsInline(true);
+      this.setTooltip(kind === 'cin' ? 'Read values in order. ⊕ adds a slot. / 依次讀入，按 ⊕ 增加一格。' : 'Print values in order. ⊕ adds a slot. / 依次輸出，按 ⊕ 增加一格。');
+      this.updateShape_();
+    },
+    saveExtraState(){ return this.items_ === 1 ? null : {items:this.items_}; },
+    loadExtraState(s){ this.items_ = (s && s.items) || 1; this.updateShape_(); },
+    inName_(k){ return k === 0 ? (kind === 'cin' ? 'TARGET' : 'VALUE') : 'ITEM' + k; },
+    updateShape_(){
+      if (this.getInput('END')) this.removeInput('END');
+      let k = 0; while (this.getInput(this.inName_(k))) k++;
+      for (let j = k - 1; j >= this.items_; j--) this.removeInput(this.inName_(j));
+      for (let j = k; j < this.items_; j++) this.appendValueInput(this.inName_(j)).appendField(j === 0 ? `${kind} ${sym}` : sym);
+      const end = this.appendDummyInput('END').appendField(';');
+      end.appendField(new Blockly.FieldImage(icon('+'), 18, 18, '+', () => this.setItems_(this.items_ + 1)));
+      if (this.items_ > 1) end.appendField(new Blockly.FieldImage(icon('-'), 18, 18, '-', () => this.setItems_(this.items_ - 1)));
+    },
+    setItems_(n){
+      if (n < 1 || n > 8 || this.isInFlyout) return;
+      const old = JSON.stringify(this.saveExtraState());
+      Blockly.Events.setGroup(true);
+      this.items_ = n; this.updateShape_();
+      Blockly.Events.fire(new (Blockly.Events.get(Blockly.Events.BLOCK_CHANGE))(this, 'mutation', null, old, JSON.stringify(this.saveExtraState())));
+      Blockly.Events.setGroup(false);
+    },
+    itemNames_(){ const r = []; for (let k = 0; k < this.items_; k++) r.push(this.inName_(k)); return r; }
+  };
+}
+Blockly.Blocks['cpp_cin'] = chainBlock('cin');
+Blockly.Blocks['cpp_cout'] = chainBlock('cout');
+
+Blockly.common.defineBlocksWithJsonArray([
+ {type:'cpp_main', message0:'int main() {', message1:'%1', args1:[is('BODY')], message2:'return 0; }', colour:COL.prog,
+  tooltip:'Program starts here. / 程式由這裡開始。'},
+ {type:'cpp_int_decl', message0:'%1 %2 ;', args0:[tdd('TYPE'), fi('NAMES','n, x')], ...ST, colour:COL.v, extensions:['names'],
+  tooltip:'Declare variables (no starting value). / 宣告變數（沒有初值）。'},
+ {type:'cpp_int_init', message0:'%1 %2 = %3 ;', args0:[tdd('TYPE'), fi('NAME','sum'), iv('VALUE')], inputsInline:true, ...ST, colour:COL.v, extensions:['names'],
+  tooltip:'Declare a variable with a starting value. / 宣告變數並給初值。'},
+ {type:'cpp_assign', message0:'%1 %2 %3 ;', args0:[iv('TARGET'), dd('OP',['=','+=','-=','*=','/=','%=']), iv('VALUE')], inputsInline:true, ...ST, colour:COL.v,
+  tooltip:'sum += x means sum = sum + x. / sum += x 即 sum = sum + x。'},
+ {type:'cpp_incr', message0:'%1 %2 ;', args0:[iv('TARGET'), dd('OP',['++','--'])], inputsInline:true, ...ST, colour:COL.v,
+  tooltip:'Add 1 (++) or subtract 1 (--). / 加 1 或減 1。'},
+ {type:'cpp_var', message0:'%1', args0:[fi('NAME','x')], ...EXPR, colour:COL.v, extensions:['names'], tooltip:'A variable. / 變數。'},
+ {type:'cpp_num', message0:'%1', args0:[fi('NUM','0')], ...EXPR, colour:COL.math, extensions:['names'], tooltip:'A number (3 or 2.5). / 數字。'},
+ {type:'cpp_bool', message0:'%1', args0:[dd('VAL',['true','false'])], ...EXPR, colour:COL.logic, tooltip:'bool value. / 布林值。'},
+ {type:'cpp_cout_space', message0:"cout << ' ' ;", ...ST, colour:COL.io, tooltip:'Print one space. / 輸出一個空格。'},
+ {type:'cpp_cout_endl', message0:"cout << '\\n' ;", ...ST, colour:COL.io, tooltip:'New line. / 換行。'},
+ {type:'cpp_cout_line', message0:"cout << %1 << '\\n' ;", args0:[iv('VALUE')], inputsInline:true, ...ST, colour:COL.io, tooltip:'Print a value then new line. / 輸出再換行。'},
+ {type:'cpp_cout_fixed', message0:"cout << fixed << setprecision( %1 ) << %2 << '\\n' ;", args0:[{type:'field_number', name:'DIGITS', value:2, min:0, max:10, precision:1}, iv('VALUE')], inputsInline:true, ...ST, colour:COL.io,
+  tooltip:'Print with fixed decimal places. Needs <iomanip>. / 固定小數位數。'},
+ {type:'cpp_string', message0:'" %1 "', args0:[fi('TEXT','EMPTY')], ...EXPR, colour:COL.io, tooltip:'Text. / 文字。'},
+ {type:'cpp_manip', message0:'%1', args0:[dd('VAL',[['endl','endl'],["'\\n'",'nl'],["' '",'sp'],['fixed','fixed']])], ...EXPR, colour:COL.io,
+  tooltip:"Use inside a cout chain. / 放在 cout 串接中使用。"},
+ {type:'cpp_setprec', message0:'setprecision( %1 )', args0:[{type:'field_number', name:'DIGITS', value:2, min:0, max:15, precision:1}], ...EXPR, colour:COL.io,
+  tooltip:'Digits for doubles; with fixed = decimal places. / 與 fixed 合用即小數位數。'},
+ {type:'cpp_vec_decl', message0:'vector< %1 > %2 ;', args0:[tdd('TYPE'), fi('NAME','v')], ...ST, colour:COL.vec, extensions:['names'],
+  tooltip:'Empty vector, size 0. Add with push_back. / 空 vector，長度 0。'},
+ {type:'cpp_vec_size', message0:'vector< %1 > %2 ( %3 ) ;', args0:[tdd('TYPE'), fi('NAME','v'), iv('SIZE')], inputsInline:true, ...ST, colour:COL.vec, extensions:['names'],
+  tooltip:'Vector with n slots (0, 0.0, "" or false). / 先開 n 格。'},
+ {type:'cpp_vec_fill', message0:'vector< %1 > %2 ( %3 , %4 ) ;', args0:[tdd('TYPE'), fi('NAME','freq'), iv('SIZE'), iv('FILL')], inputsInline:true, ...ST, colour:COL.vec, extensions:['names'],
+  tooltip:'n slots, each starts with the given value. / n 格，每格同一初值。'},
+ {type:'cpp_push', message0:'%1 .push_back( %2 ) ;', args0:[fi('VEC','v'), iv('VALUE')], inputsInline:true, ...ST, colour:COL.vec, extensions:['names'],
+  tooltip:'Add to the end; size + 1. / 加到尾端，長度加 1。'},
+ {type:'cpp_vec_stmt', message0:'%1 . %2 ;', args0:[fi('VEC','v'), dd('OP',[['pop_back()','pop_back'],['clear()','clear']])], ...ST, colour:COL.vec, extensions:['names'],
+  tooltip:'pop_back: remove last; clear: remove all. / 刪除最後一個 / 全部清空。'},
+ {type:'cpp_vec_insert', message0:'%1 .insert( %2 .begin() + %3 , %4 ) ;', args0:[fi('VEC','v'), lab('L1'), iv('POS'), iv('VALUE')], inputsInline:true, ...ST, colour:COL.vec, extensions:['names','sync'],
+  tooltip:'Insert before index pos. / 在索引 pos 之前插入。'},
+ {type:'cpp_vec_erase', message0:'%1 .erase( %2 .begin() + %3 ) ;', args0:[fi('VEC','v'), lab('L1'), iv('POS')], inputsInline:true, ...ST, colour:COL.vec, extensions:['names','sync'],
+  tooltip:'Remove the element at index pos. / 刪除索引 pos 的元素。'},
+ {type:'cpp_index', message0:'%1 [ %2 ]', args0:[fi('VEC','v'), iv('INDEX')], inputsInline:true, ...EXPR, colour:COL.vec, extensions:['names'],
+  tooltip:'Element at index (starts at 0). / 索引由 0 開始。'},
+ {type:'cpp_int_size', message0:'int( %1 .size() )', args0:[fi('VEC','v')], ...EXPR, colour:COL.vec, extensions:['names'],
+  tooltip:'Number of elements as int (safe for i >= 0 loops). / 元素數量（轉為 int）。'},
+ {type:'cpp_size', message0:'%1 .size()', args0:[fi('VEC','v')], ...EXPR, colour:COL.vec, extensions:['names'], tooltip:'Number of elements. / 元素數量。'},
+ {type:'cpp_empty', message0:'%1 .empty()', args0:[fi('VEC','v')], ...EXPR, colour:COL.vec, extensions:['names'], tooltip:'true when size is 0. / 長度為 0 時為真。'},
+ {type:'cpp_vec_end', message0:'%1 . %2', args0:[fi('VEC','v'), dd('OP',[['back()','back'],['front()','front']])], ...EXPR, colour:COL.vec, extensions:['names'],
+  tooltip:'Last / first element. / 最後一個 / 第一個元素。'},
+ {type:'cpp_vec_minmax', message0:'* %1 ( %2 .begin(), %3 .end() )', args0:[dd('FN',['max_element','min_element']), fi('VEC','v'), lab('L1')], ...EXPR, colour:COL.vec, extensions:['names','sync'],
+  tooltip:'Largest / smallest value. Needs <algorithm>. / 最大 / 最小值。'},
+ {type:'cpp_vec_count', message0:'count( %1 .begin(), %2 .end(), %3 )', args0:[fi('VEC','v'), lab('L1'), iv('X')], inputsInline:true, ...EXPR, colour:COL.vec, extensions:['names','sync'],
+  tooltip:'How many elements equal x. / 有多少個等於 x。'},
+ {type:'cpp_sort', message0:'%1 ( %2 .begin(), %3 .end() ) ;', args0:[dd('FN',['sort','reverse']), fi('VEC','v'), lab('L1')], ...ST, colour:COL.vec, extensions:['names','sync'],
+  tooltip:'sort: ascending; reverse: flip order. Needs <algorithm>. / 由小到大排序 / 前後倒轉。'},
+ {type:'cpp_sort_desc', message0:'sort( %1 .rbegin(), %2 .rend() ) ;', args0:[fi('VEC','v'), lab('L1')], ...ST, colour:COL.vec, extensions:['names','sync'],
+  tooltip:'Sort descending. / 由大到小排序。'},
+ {type:'cpp_for', message0:'for ( int %1 = %2 ; %3 %4 %5 ; %6 %7 ) {', args0:[fi('VAR','i'), iv('FROM'), {type:'field_label', name:'L1', text:'i'}, dd('CMP',['<','<=','>','>=','!=']), iv('TO'), {type:'field_label', name:'L2', text:'i'}, dd('STEP',['++','--'])],
+  message1:'%1', args1:[is('DO')], message2:'}', inputsInline:true, ...ST, colour:COL.loop, extensions:['names','sync'],
+  tooltip:'Counting loop. / 計數迴圈。'},
+ {type:'cpp_foreach_val', message0:'for ( %1 %2 : %3 ) {', args0:[tdd('TYPE',['auto']), fi('VAR','x'), fi('VEC','v')], message1:'%1', args1:[is('DO')], message2:'}', ...ST, colour:COL.loop, extensions:['names'],
+  tooltip:'Read every value in order (a copy: changing x does not change v). / 逐一讀取每個值（複本：改 x 不會改到 v）。'},
+ {type:'cpp_foreach', message0:'for ( %1 & %2 : %3 ) {', args0:[tdd('TYPE',['auto']), fi('VAR','x'), fi('VEC','v')], message1:'%1', args1:[is('DO')], message2:'}', ...ST, colour:COL.loop, extensions:['names'],
+  tooltip:'Visit every slot; & lets you change it. / 走訪每一格，& 可修改該格。'},
+ {type:'cpp_if', message0:'if ( %1 ) {', args0:[iv('COND')], message1:'%1', args1:[is('DO')], message2:'}', inputsInline:true, ...ST, colour:COL.logic, tooltip:'Run only when true. / 條件成立才執行。'},
+ {type:'cpp_if_else', message0:'if ( %1 ) {', args0:[iv('COND')], message1:'%1', args1:[is('DO')], message2:'} else {', message3:'%1', args3:[is('ELSE')], message4:'}', inputsInline:true, ...ST, colour:COL.logic,
+  tooltip:'Two branches. / 兩個分支。'},
+ {type:'cpp_compare', message0:'%1 %2 %3', args0:[iv('A'), dd('OP',['<','<=','>','>=','==','!=']), iv('B')], inputsInline:true, ...EXPR, colour:COL.logic},
+ {type:'cpp_logic', message0:'%1 %2 %3', args0:[iv('A'), dd('OP',['&&','||']), iv('B')], inputsInline:true, ...EXPR, colour:COL.logic, tooltip:'&& and / || or'},
+ {type:'cpp_not', message0:'! %1', args0:[iv('A')], inputsInline:true, ...EXPR, colour:COL.logic, tooltip:'not / 否定'},
+ {type:'cpp_arith', message0:'%1 %2 %3', args0:[iv('A'), dd('OP',['+','-','*','/','%']), iv('B')], inputsInline:true, ...EXPR, colour:COL.math,
+  tooltip:'int / int drops the decimal part. / 整數相除會捨去小數。'},
+ {type:'cpp_double', message0:'double( %1 )', args0:[iv('A')], inputsInline:true, ...EXPR, colour:COL.math, tooltip:'Convert to decimal before dividing. / 先轉小數再除。'},
+ {type:'cpp_func2', message0:'%1 ( %2 , %3 )', args0:[dd('FN',['max','min']), iv('A'), iv('B')], inputsInline:true, ...EXPR, colour:COL.math, tooltip:'Larger / smaller of two. / 兩數取大 / 取小。'},
+ {type:'cpp_abs', message0:'abs( %1 )', args0:[iv('A')], inputsInline:true, ...EXPR, colour:COL.math, tooltip:'Absolute value. / 絕對值。'},
+ {type:'cpp_expr', message0:'✎ %1', args0:[fi('TEXT','v[i] * 2')], ...EXPR, colour:COL.free, extensions:['free_expr'],
+  tooltip:'Type a C++ expression: numbers, variables, + - * / %, < > == !=, && || !, v[i], v.size(), v.back(), max(a, b), abs(x), double(x). / 直接輸入 C++ 運算式。'}
+]);
+
+/* ================= Free-expression parser (✎ block) ================= */
+const BIN = {'||':12, '&&':11, '==':7, '!=':7, '<':6, '<=':6, '>':6, '>=':6, '+':4, '-':4, '*':3, '/':3, '%':3};
+function tokenize(s){
+  const re = /\s*(?:(\d+\.\d+|\d+)|([A-Za-z_]\w*)|("(?:[^"\\]|\\.)*")|('(?:[^'\\]|\\.)')|(<=|>=|==|!=|&&|\|\||[-+*/%<>!()[\].,]))/y;
+  const out = [];
+  let pos = 0;
+  while (pos < s.length) {
+    if (/^\s*$/.test(s.slice(pos))) break;
+    re.lastIndex = pos;
+    const m = re.exec(s);
+    if (!m) throw new Error(`Cannot read "${s.slice(pos).trim().slice(0, 8)}" / 看不懂這部分`);
+    pos = re.lastIndex;
+    if (m[1]) out.push({k:'num', v:m[1]}); else if (m[2]) out.push({k:'id', v:m[2]});
+    else if (m[3]) out.push({k:'str', v:m[3]}); else if (m[4]) out.push({k:'chr', v:m[4]}); else out.push({k:'op', v:m[5]});
+  }
+  return out;
+}
+function parseExpr(text){
+  const t = tokenize(text);
+  let p = 0;
+  const peek = () => t[p];
+  const eat = v => { const x = t[p]; if (!x || x.v !== v) throw new Error(`Expected "${v}" / 缺少 ${v}`); p++; return x; };
+  function primary(){
+    const x = t[p++];
+    if (!x) throw new Error('Expression is incomplete / 運算式未完成');
+    let node;
+    if (x.k === 'num') node = {k:'num', v:x.v};
+    else if (x.k === 'str') node = {k:'str', v:x.v};
+    else if (x.k === 'chr') node = {k:'chr', v:x.v};
+    else if (x.k === 'id') {
+      if (x.v === 'true' || x.v === 'false') node = {k:'bool', v:x.v};
+      else if (peek() && peek().v === '(') {
+        p++; const args = [];
+        if (peek() && peek().v !== ')') { args.push(expr(99)); while (peek() && peek().v === ',') { p++; args.push(expr(99)); } }
+        eat(')'); node = {k:'call', f:x.v, args};
+      } else node = {k:'id', v:x.v};
+    }
+    else if (x.v === '(') { node = {k:'paren', e:expr(99)}; eat(')'); }
+    else if (x.v === '-' || x.v === '!') return {k:'un', op:x.v, e:primary()};
+    else throw new Error(`Unexpected "${x.v}" / 多了 ${x.v}`);
+    for (;;) {
+      const q = peek();
+      if (q && q.v === '[') { p++; const i = expr(99); eat(']'); node = {k:'idx', b:node, i}; }
+      else if (q && q.v === '.') { p++; const m = t[p++]; if (!m || m.k !== 'id') throw new Error('Expected a method after "." / . 後要有方法名稱'); eat('('); eat(')'); node = {k:'meth', b:node, m:m.v}; }
+      else break;
+    }
+    return node;
+  }
+  function expr(maxPrec){
+    let left = primary();
+    for (;;) {
+      const q = peek();
+      if (!q || q.k !== 'op' || !(q.v in BIN) || BIN[q.v] >= maxPrec) break;
+      p++; left = {k:'bin', op:q.v, a:left, b:expr(BIN[q.v]), pr:BIN[q.v]};
+    }
+    return left;
+  }
+  const ast = expr(99);
+  if (p < t.length) throw new Error(`Unexpected "${t[p].v}" / 多了 ${t[p].v}`);
+  return ast;
+}
+Blockly.Extensions.register('free_expr', function(){
+  this.getField('TEXT').setValidator(v => { try { parseExpr(v); this.setWarningText(null); } catch(e){ this.setWarningText(e.message); } return v; });
+});
+
+/* ================= Block-JSON helpers (answers, toolbox) ================= */
+function B(type, fields, inputs, stmts){
+  const o = {type};
+  if (fields && Object.keys(fields).length) o.fields = fields;
+  const ins = {};
+  for (const [k, v] of Object.entries(inputs || {})) if (v) ins[k] = {block:v};
+  for (const [k, v] of Object.entries(stmts || {})) if (v && v.length) ins[k] = {block:seq(v)};
+  if (Object.keys(ins).length) o.inputs = ins;
+  return o;
+}
+function seq(arr){ for (let i = arr.length - 2; i >= 0; i--) arr[i].next = {block:arr[i + 1]}; return arr[0]; }
+function chain(type, first, items){
+  const ins = {}; items.forEach((b, k) => { ins[k ? 'ITEM' + k : first] = b; });
+  const o = B(type, {}, ins); if (items.length > 1) o.extraState = {items:items.length}; return o;
+}
+const num = n => B('cpp_num', {NUM:String(n)});
+const V = n => B('cpp_var', {NAME:n});
+const idx = (v, e) => B('cpp_index', {VEC:v}, {INDEX:e});
+const isz = v => B('cpp_int_size', {VEC:v});
+const sz = v => B('cpp_size', {VEC:v});
+const emp = v => B('cpp_empty', {VEC:v});
+const cmp = (a, op, b) => B('cpp_compare', {OP:op}, {A:a, B:b});
+const ar = (a, op, b) => B('cpp_arith', {OP:op}, {A:a, B:b});
+const dbl = e => B('cpp_double', {}, {A:e});
+const str = t => B('cpp_string', {TEXT:t});
+const manip = v => B('cpp_manip', {VAL:v});
+const intDecl = (n, t) => B('cpp_int_decl', {TYPE:t || 'int', NAMES:n});
+const intInit = (n, e, t) => B('cpp_int_init', {TYPE:t || 'int', NAME:n}, {VALUE:e});
+const vecDecl = (n, t) => B('cpp_vec_decl', {TYPE:t || 'int', NAME:n});
+const vecSize = (n, e) => B('cpp_vec_size', {NAME:n}, {SIZE:e});
+const vecFill = (n, a, b) => B('cpp_vec_fill', {NAME:n}, {SIZE:a, FILL:b});
+const cin = (...t) => chain('cpp_cin', 'TARGET', t);
+const cout = (...e) => chain('cpp_cout', 'VALUE', e);
+const coutLine = e => B('cpp_cout_line', {}, {VALUE:e});
+const space = () => B('cpp_cout_space');
+const endl = () => B('cpp_cout_endl');
+const fixed = (d, e) => B('cpp_cout_fixed', {DIGITS:d}, {VALUE:e});
+const push = (v, e) => B('cpp_push', {VEC:v}, {VALUE:e});
+const assign = (t, op, e) => B('cpp_assign', {OP:op}, {TARGET:t, VALUE:e});
+const inc = (t, op) => B('cpp_incr', {OP:op}, {TARGET:t});
+const forL = (v, from, c, to, step, body) => B('cpp_for', {VAR:v, CMP:c, STEP:step}, {FROM:from, TO:to}, {DO:body});
+const forEach = (v, vec, body, t) => B('cpp_foreach', {TYPE:t || 'int', VAR:v, VEC:vec}, {}, {DO:body});
+const forEachVal = (v, vec, body, t) => B('cpp_foreach_val', {TYPE:t || 'int', VAR:v, VEC:vec}, {}, {DO:body});
+const iff = (c, body) => B('cpp_if', {}, {COND:c}, {DO:body});
+const ifElse = (c, a, b) => B('cpp_if_else', {}, {COND:c}, {DO:a, ELSE:b});
+const sortV = v => B('cpp_sort', {FN:'sort', VEC:v});
+const mainB = body => Object.assign(B('cpp_main', {}, {}, {BODY:body}), {x:30, y:30, deletable:false});
+const printLoop = (v, end) => forL('i', num(0), '<', end, '++', [iff(cmp(V('i'), '>', num(0)), [space()]), cout(idx(v, V('i')))]);
+
+const starter = () => [intDecl('n, x'), cin(V('n'))];
+const ans40long = () => [intDecl('n, x'), cin(V('n')), vecDecl('v'),
+  forL('i', num(0), '<', V('n'), '++', [cin(V('x')), push('v', V('x'))]), printLoop('v', isz('v')), endl()];
+const ans40short = () => [intDecl('n'), cin(V('n')), vecSize('v', V('n')),
+  forEach('x', 'v', [cin(V('x'))]), printLoop('v', V('n')), endl()];
+const ans41 = () => [intDecl('n, x'), cin(V('n')), vecDecl('v'), intInit('sum', num(0)),
+  forL('i', num(0), '<', V('n'), '++', [cin(V('x')), push('v', V('x')), assign(V('sum'), '+=', V('x'))]), coutLine(V('sum'))];
+const ans41range = () => [intDecl('n, x'), cin(V('n')), vecDecl('v'),
+  forL('i', num(0), '<', V('n'), '++', [cin(V('x')), push('v', V('x'))]), intInit('sum', num(0)),
+  forEachVal('val', 'v', [assign(V('sum'), '+=', V('val'))]), coutLine(V('sum'))];
+const ans42 = () => [intDecl('n, x'), cin(V('n')), vecDecl('v'),
+  forL('i', num(0), '<', V('n'), '++', [cin(V('x')), iff(cmp(V('x'), '>', num(0)), [push('v', V('x'))])]),
+  ifElse(emp('v'), [coutLine(str('EMPTY'))], [
+    forL('i', ar(isz('v'), '-', num(1)), '>=', num(0), '--', [iff(cmp(V('i'), '!=', ar(isz('v'), '-', num(1))), [space()]), cout(idx('v', V('i')))]),
+    endl()])];
+const ans43 = () => [intDecl('n, x'), cin(V('n')), vecFill('freq', num(7), num(0)),
+  forL('i', num(0), '<', V('n'), '++', [cin(V('x')), inc(idx('freq', V('x')), '++')]),
+  forL('face', num(1), '<=', num(6), '++', [iff(cmp(V('face'), '>', num(1)), [space()]), cout(idx('freq', V('face')))]), endl()];
+const ans44 = () => [intDecl('n, x'), cin(V('n')), vecDecl('v'), intInit('sum', num(0)),
+  forL('i', num(0), '<', V('n'), '++', [cin(V('x')), push('v', V('x')), assign(V('sum'), '+=', V('x'))]),
+  sortV('v'), coutLine(idx('v', ar(sz('v'), '-', num(1)))), coutLine(idx('v', num(0))),
+  fixed(2, ar(dbl(V('sum')), '/', sz('v'))), printLoop('v', isz('v')), endl()];
+
+const tb = b => Object.assign({kind:'block'}, b);
+const lbl = text => ({kind:'label', text});
+const TOOLBOX = {kind:'categoryToolbox', contents:[
+ {kind:'category', name:'Variables 變數', colour:COL.v, contents:[
+   tb(intDecl('n, x')), tb(intDecl('avg', 'double')), tb(intInit('sum', num(0))), tb(intInit('found', B('cpp_bool', {VAL:'false'}), 'bool')),
+   tb(assign(V('sum'), '+=', V('x'))), tb(inc(V('i'), '++')), tb(V('x')), tb(num(0)), tb(B('cpp_bool', {VAL:'true'}))]},
+ {kind:'category', name:'I/O 輸入輸出', colour:COL.io, contents:[
+   lbl('⊕ / ⊖ add or remove slots 增減格數'),
+   tb(cin(V('x'))), tb(cin(V('a'), V('b'))), tb(cout(idx('v', V('i')))), tb(cout(V('a'), manip('sp'), V('b'), manip('nl'))),
+   tb(space()), tb(endl()), tb(coutLine(V('sum'))), tb(fixed(2, ar(dbl(V('sum')), '/', sz('v')))),
+   tb(str('EMPTY')), tb(manip('nl')), tb(manip('fixed')), tb(B('cpp_setprec', {DIGITS:2}))]},
+ {kind:'category', name:'Vector', colour:COL.vec, contents:[
+   tb(vecDecl('v')), tb(vecSize('v', V('n'))), tb(vecFill('freq', num(7), num(0))), tb(push('v', V('x'))),
+   tb(idx('v', V('i'))), tb(isz('v')), tb(sz('v')), tb(emp('v')),
+   lbl('More 更多操作'),
+   tb(B('cpp_vec_end', {VEC:'v', OP:'back'})), tb(B('cpp_vec_stmt', {VEC:'v', OP:'pop_back'})),
+   tb(B('cpp_vec_insert', {VEC:'v'}, {POS:num(0), VALUE:V('x')})), tb(B('cpp_vec_erase', {VEC:'v'}, {POS:V('i')})),
+   tb(sortV('v')), tb(B('cpp_sort_desc', {VEC:'v'})), tb(B('cpp_sort', {FN:'reverse', VEC:'v'})),
+   tb(B('cpp_vec_minmax', {FN:'max_element', VEC:'v'})), tb(B('cpp_vec_count', {VEC:'v'}, {X:V('x')}))]},
+ {kind:'category', name:'Loops 迴圈', colour:COL.loop, contents:[
+   tb(forL('i', num(0), '<', V('n'), '++', [])),
+   tb(forL('i', ar(isz('v'), '-', num(1)), '>=', num(0), '--', [])),
+   tb(forEachVal('x', 'v', [])),
+   tb(forEach('x', 'v', []))]},
+ {kind:'category', name:'Logic 條件', colour:COL.logic, contents:[
+   tb(iff(cmp(V('i'), '>', num(0)), [])), tb(ifElse(emp('v'), [], [])),
+   tb(cmp(V('x'), '>', num(0))), tb(B('cpp_logic', {OP:'&&'})), tb(B('cpp_not')), tb(B('cpp_bool', {VAL:'true'}))]},
+ {kind:'category', name:'Math 運算', colour:COL.math, contents:[
+   tb(ar(V('x'), '+', num(1))), tb(ar(isz('v'), '-', num(1))), tb(dbl(V('sum'))),
+   tb(B('cpp_func2', {FN:'max'}, {A:V('a'), B:V('b')})), tb(B('cpp_abs', {}, {A:V('x')})), tb(num(0))]},
+ {kind:'category', name:'✎ Free 自由輸入', colour:COL.free, contents:[
+   lbl('Type any C++ expression 直接輸入運算式'),
+   tb(B('cpp_expr', {TEXT:'v[i] * 2 + 1'})), tb(B('cpp_expr', {TEXT:'x % 2 == 0'})),
+   tb(B('cpp_expr', {TEXT:'double(sum) / v.size()'})), tb(B('cpp_expr', {TEXT:'max(v[0], v.back())'}))]}
+]};
+
+/* ================= Types ================= */
+let SYM = {};
+const VEC_DECL = new Set(['cpp_vec_decl', 'cpp_vec_size', 'cpp_vec_fill']);
+const FOREACH = new Set(['cpp_foreach', 'cpp_foreach_val']);
+let LOOPVARS = new Set();
+function collectSyms(main){
+  const sym = {}; LOOPVARS = new Set();
+  const all = main.getDescendants(false);
+  all.forEach(b => { if (VEC_DECL.has(b.type)) sym[f(b, 'NAME')] = {vec:true, t:f(b, 'TYPE')}; });
+  all.forEach(b => {
+    if (b.type === 'cpp_int_decl') f(b, 'NAMES').split(',').forEach(s => { sym[s.trim()] = {t:f(b, 'TYPE')}; });
+    if (b.type === 'cpp_int_init') sym[f(b, 'NAME')] = {t:f(b, 'TYPE')};
+    if (b.type === 'cpp_for') { sym[f(b, 'VAR')] = {t:'int'}; LOOPVARS.add(f(b, 'VAR')); }
+    if (FOREACH.has(b.type)) { let t = f(b, 'TYPE'); if (t === 'auto') { const v = sym[f(b, 'VEC')]; t = v && v.vec ? v.t : 'int'; } sym[f(b, 'VAR')] = {t}; }
+  });
+  return sym;
+}
+const intLike = t => t === 'int' || t === 'bool' || t === '?';
+const arithTy = (a, b) => (a === 'string' || b === 'string') ? 'string' : (a === 'double' || b === 'double') ? 'double' : 'int';
+const elemOf = n => { const s = SYM[n]; return s && s.vec ? s.t : '?'; };
+function tyOf(b){
+  if (!b) return '?';
+  const A = () => tyOf(b.getInputTargetBlock('A')), Bt = () => tyOf(b.getInputTargetBlock('B'));
+  switch (b.type) {
+    case 'cpp_num': return f(b, 'NUM').includes('.') ? 'double' : 'int';
+    case 'cpp_bool': return 'bool';
+    case 'cpp_var': { const s = SYM[f(b, 'NAME')]; return s && !s.vec ? s.t : '?'; }
+    case 'cpp_index': case 'cpp_vec_end': case 'cpp_vec_minmax': return elemOf(f(b, 'VEC'));
+    case 'cpp_size': case 'cpp_int_size': case 'cpp_vec_count': return 'int';
+    case 'cpp_empty': case 'cpp_compare': case 'cpp_logic': case 'cpp_not': return 'bool';
+    case 'cpp_string': return 'string';
+    case 'cpp_manip': return f(b, 'VAL') === 'fixed' ? 'manip' : 'string';
+    case 'cpp_setprec': return 'manip';
+    case 'cpp_double': return 'double';
+    case 'cpp_arith': return arithTy(A(), Bt());
+    case 'cpp_func2': return (A() === 'double' || Bt() === 'double') ? 'double' : A();
+    case 'cpp_abs': return A() === 'double' ? 'double' : 'int';
+    case 'cpp_expr': try { return axJS(parseExpr(f(b, 'TEXT'))).t; } catch(e){ return '?'; }
+  }
+  return '?';
+}
+
+/* ================= C++ generator ================= */
+const O = {ATOMIC:0, POSTFIX:1, UNARY:2, MUL:3, ADD:4, SHIFT:5, REL:6, EQ:7, AND:11, OR:12, NONE:99};
+const C = new Blockly.CodeGenerator('CPP');
+const J = new Blockly.CodeGenerator('JSRUN');
+C.INDENT = '    '; J.INDENT = '  ';
+let MARK = false;
+C.scrub_ = function(block, code, thisOnly){
+  const nb = block.nextConnection && block.nextConnection.targetBlock();
+  const nextCode = (thisOnly || !nb) ? '' : this.blockToCode(nb);
+  if (!block.outputConnection && MARK) code = `\u0001${block.id}\n${code}\u0002${block.id}\n`;
+  return code + nextCode;
+};
+const cv = (b, n, o) => C.valueToCode(b, n, o) || '___';
+const f = (b, n) => b.getFieldValue(n);
+const cbin = (b, ord) => [`${cv(b, 'A', ord + 0.5)} ${f(b, 'OP')} ${cv(b, 'B', ord)}`, ord];
+const relOrd = op => (op === '==' || op === '!=') ? O.EQ : O.REL;
+const MANIP_CPP = {endl:'endl', nl:"'\\n'", sp:"' '", fixed:'fixed'};
+function astOrder(text){ try { const a = parseExpr(text); return a.k === 'bin' ? a.pr : a.k === 'un' ? O.UNARY : O.POSTFIX; } catch(e){ return O.NONE; } }
+Object.assign(C.forBlock, {
+  cpp_main(b){
+    const ds = b.getDescendants(false), has = (...t) => ds.some(d => t.includes(d.type));
+    const freeText = ds.filter(d => d.type === 'cpp_expr').map(d => f(d, 'TEXT')).join(' ');
+    let inc = '#include <iostream>\n#include <vector>\n';
+    if (ds.some(d => d.getField('TYPE') && f(d, 'TYPE') === 'string')) inc += '#include <string>\n';
+    if (has('cpp_sort', 'cpp_sort_desc', 'cpp_vec_minmax', 'cpp_vec_count', 'cpp_func2') || /\b(max|min)\s*\(/.test(freeText)) inc += '#include <algorithm>\n';
+    if (has('cpp_cout_fixed', 'cpp_setprec')) inc += '#include <iomanip>\n';
+    if (has('cpp_abs') || /\b(abs|sqrt)\s*\(/.test(freeText)) inc += '#include <cmath>\n';
+    return `${inc}using namespace std;\n\nint main() {\n${C.statementToCode(b, 'BODY')}    return 0;\n}\n`;
+  },
+  cpp_int_decl: b => `${f(b, 'TYPE')} ${f(b, 'NAMES')};\n`,
+  cpp_int_init: b => `${f(b, 'TYPE')} ${f(b, 'NAME')} = ${cv(b, 'VALUE', O.NONE)};\n`,
+  cpp_assign: b => `${cv(b, 'TARGET', O.NONE)} ${f(b, 'OP')} ${cv(b, 'VALUE', O.NONE)};\n`,
+  cpp_incr: b => `${cv(b, 'TARGET', O.POSTFIX)}${f(b, 'OP')};\n`,
+  cpp_var: b => [f(b, 'NAME'), O.ATOMIC],
+  cpp_num: b => { const n = f(b, 'NUM'); return [n, n.startsWith('-') ? O.UNARY : O.ATOMIC]; },
+  cpp_bool: b => [f(b, 'VAL'), O.ATOMIC],
+  cpp_cin: b => `cin >> ${b.itemNames_().map(n => cv(b, n, O.SHIFT)).join(' >> ')};\n`,
+  cpp_cout: b => `cout << ${b.itemNames_().map(n => cv(b, n, O.SHIFT)).join(' << ')};\n`,
+  cpp_cout_space: () => "cout << ' ';\n",
+  cpp_cout_endl: () => "cout << '\\n';\n",
+  cpp_cout_line: b => `cout << ${cv(b, 'VALUE', O.SHIFT)} << '\\n';\n`,
+  cpp_cout_fixed: b => `cout << fixed << setprecision(${f(b, 'DIGITS')}) << ${cv(b, 'VALUE', O.SHIFT)} << '\\n';\n`,
+  cpp_string: b => [`"${f(b, 'TEXT').replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`, O.ATOMIC],
+  cpp_manip: b => [MANIP_CPP[f(b, 'VAL')], O.ATOMIC],
+  cpp_setprec: b => [`setprecision(${f(b, 'DIGITS')})`, O.POSTFIX],
+  cpp_vec_decl: b => `vector<${f(b, 'TYPE')}> ${f(b, 'NAME')};\n`,
+  cpp_vec_size: b => `vector<${f(b, 'TYPE')}> ${f(b, 'NAME')}(${cv(b, 'SIZE', O.NONE)});\n`,
+  cpp_vec_fill: b => `vector<${f(b, 'TYPE')}> ${f(b, 'NAME')}(${cv(b, 'SIZE', O.NONE)}, ${cv(b, 'FILL', O.NONE)});\n`,
+  cpp_push: b => `${f(b, 'VEC')}.push_back(${cv(b, 'VALUE', O.NONE)});\n`,
+  cpp_vec_stmt: b => `${f(b, 'VEC')}.${f(b, 'OP')}();\n`,
+  cpp_vec_insert: b => `${f(b, 'VEC')}.insert(${f(b, 'VEC')}.begin() + ${cv(b, 'POS', O.ADD)}, ${cv(b, 'VALUE', O.NONE)});\n`,
+  cpp_vec_erase: b => `${f(b, 'VEC')}.erase(${f(b, 'VEC')}.begin() + ${cv(b, 'POS', O.ADD)});\n`,
+  cpp_index: b => [`${f(b, 'VEC')}[${cv(b, 'INDEX', O.NONE)}]`, O.POSTFIX],
+  cpp_int_size: b => [`int(${f(b, 'VEC')}.size())`, O.POSTFIX],
+  cpp_size: b => [`${f(b, 'VEC')}.size()`, O.POSTFIX],
+  cpp_empty: b => [`${f(b, 'VEC')}.empty()`, O.POSTFIX],
+  cpp_vec_end: b => [`${f(b, 'VEC')}.${f(b, 'OP')}()`, O.POSTFIX],
+  cpp_vec_minmax: b => [`*${f(b, 'FN')}(${f(b, 'VEC')}.begin(), ${f(b, 'VEC')}.end())`, O.UNARY],
+  cpp_vec_count: b => [`count(${f(b, 'VEC')}.begin(), ${f(b, 'VEC')}.end(), ${cv(b, 'X', O.NONE)})`, O.POSTFIX],
+  cpp_sort: b => `${f(b, 'FN')}(${f(b, 'VEC')}.begin(), ${f(b, 'VEC')}.end());\n`,
+  cpp_sort_desc: b => `sort(${f(b, 'VEC')}.rbegin(), ${f(b, 'VEC')}.rend());\n`,
+  cpp_for(b){ const v = f(b, 'VAR');
+    return `for (int ${v} = ${cv(b, 'FROM', O.NONE)}; ${v} ${f(b, 'CMP')} ${cv(b, 'TO', O.REL)}; ${v}${f(b, 'STEP')}) {\n${C.statementToCode(b, 'DO')}}\n`; },
+  cpp_foreach_val: b => `for (${f(b, 'TYPE')} ${f(b, 'VAR')} : ${f(b, 'VEC')}) {\n${C.statementToCode(b, 'DO')}}\n`,
+  cpp_foreach: b => `for (${f(b, 'TYPE')} &${f(b, 'VAR')} : ${f(b, 'VEC')}) {\n${C.statementToCode(b, 'DO')}}\n`,
+  cpp_if: b => `if (${cv(b, 'COND', O.NONE)}) {\n${C.statementToCode(b, 'DO')}}\n`,
+  cpp_if_else: b => `if (${cv(b, 'COND', O.NONE)}) {\n${C.statementToCode(b, 'DO')}} else {\n${C.statementToCode(b, 'ELSE')}}\n`,
+  cpp_compare: b => cbin(b, relOrd(f(b, 'OP'))),
+  cpp_logic: b => cbin(b, f(b, 'OP') === '&&' ? O.AND : O.OR),
+  cpp_not: b => [`!${cv(b, 'A', O.UNARY)}`, O.UNARY],
+  cpp_arith: b => cbin(b, '+-'.includes(f(b, 'OP')) ? O.ADD : O.MUL),
+  cpp_double: b => [`double(${cv(b, 'A', O.NONE)})`, O.POSTFIX],
+  cpp_func2: b => [`${f(b, 'FN')}(${cv(b, 'A', O.NONE)}, ${cv(b, 'B', O.NONE)})`, O.POSTFIX],
+  cpp_abs: b => [`abs(${cv(b, 'A', O.NONE)})`, O.POSTFIX],
+  cpp_expr: b => { const t = f(b, 'TEXT').trim() || '___'; return [t, astOrder(t)]; }
+});
+
+/* ================= JS runtime generator ================= */
+let NAMES = [], GET = '[]', KCOUNT = 0;
+const LOOP_TYPES = new Set(['cpp_for', 'cpp_foreach', 'cpp_foreach_val']);
+J.scrub_ = function(block, code, thisOnly){
+  const nb = block.nextConnection && block.nextConnection.targetBlock();
+  const nextCode = (thisOnly || !nb) ? '' : this.blockToCode(nb);
+  if (!block.outputConnection && block.type !== 'cpp_main' && !LOOP_TYPES.has(block.type)) code = `__step(${JSON.stringify(block.id)}, ${GET});\n` + code;
+  return code + nextCode;
+};
+const jv = (b, n, o) => J.valueToCode(b, n, o) || `__missing(${JSON.stringify(b.id)})`;
+const u = n => 'u_' + n;
+const qs = s => JSON.stringify(s);
+const ZERO = {int:'0', double:'0', string:'""', bool:'false'};
+const ty = (b, n) => tyOf(b.getInputTargetBlock(n));
+const conv = (code, t) => `__conv(${code}, ${qs(t === '?' ? 'int' : t)})`;
+function jsBin(a, op, b, ta, tb){
+  if (op === '/' && intLike(ta) && intLike(tb)) return {js:`__idiv(${a}, ${b})`, t:'int'};
+  if (op === '/') return {js:`(${a} / ${b})`, t:'double'};
+  if (op === '%') return {js:`__imod(${a}, ${b})`, t:'int'};
+  if ('+-*'.includes(op)) {
+    if ((ta === 'string') !== (tb === 'string') && ta !== '?' && tb !== '?') return {js:`__err("Cannot mix text and numbers with ${op} / 文字不能與數字運算")`, t:'?'};
+    return {js:`(${a} ${op} ${b})`, t:arithTy(ta, tb)};
+  }
+  const jop = op === '==' ? '===' : op === '!=' ? '!==' : op;
+  return {js:`(${a} ${jop} ${b})`, t:'bool'};
+}
+/* free-expression AST → JS */
+function axJS(n){
+  switch (n.k) {
+    case 'num': return {js:n.v, t:n.v.includes('.') ? 'double' : 'int'};
+    case 'bool': return {js:n.v, t:'bool'};
+    case 'str': return {js:n.v, t:'string'};
+    case 'chr': return {js:n.v, t:'string'};
+    case 'id': { const s = SYM[n.v]; return {js:u(n.v), t:s ? (s.vec ? 'vec' : s.t) : '?', name:n.v, elem:s && s.vec ? s.t : null}; }
+    case 'paren': { const r = axJS(n.e); return Object.assign({}, r, {js:`(${r.js})`}); }
+    case 'idx': { const b = axJS(n.b), i = axJS(n.i);
+      if (b.t !== 'vec') throw new Error(`${b.name || 'This'} is not a vector, cannot use [ ] / 不是 vector`);
+      return {js:`${b.js}[__ix(${b.js}, ${i.js}, ${qs(b.name)})]`, t:b.elem}; }
+    case 'meth': { const b = axJS(n.b);
+      if (b.t !== 'vec') throw new Error(`.${n.m}() needs a vector / 需要 vector`);
+      if (n.m === 'size') return {js:`__len(${b.js}, ${qs(b.name)})`, t:'int'};
+      if (n.m === 'empty') return {js:`(__len(${b.js}, ${qs(b.name)}) === 0)`, t:'bool'};
+      if (n.m === 'back' || n.m === 'front') return {js:`__end(${b.js}, ${qs(n.m)}, ${qs(b.name)})`, t:b.elem};
+      throw new Error(`.${n.m}() cannot be used here / 這裡不能用 .${n.m}()`); }
+    case 'call': { const a = n.args.map(axJS), need = k => { if (a.length !== k) throw new Error(`${n.f}( ) needs ${k} value(s) / 需要 ${k} 個參數`); };
+      if (n.f === 'max' || n.f === 'min') { need(2); return {js:`Math.${n.f}(${a[0].js}, ${a[1].js})`, t:arithTy(a[0].t, a[1].t)}; }
+      if (n.f === 'abs') { need(1); return {js:`Math.abs(${a[0].js})`, t:a[0].t === 'double' ? 'double' : 'int'}; }
+      if (n.f === 'sqrt') { need(1); return {js:`Math.sqrt(${a[0].js})`, t:'double'}; }
+      if (n.f === 'double') { need(1); return {js:`Number(${a[0].js})`, t:'double'}; }
+      if (n.f === 'int') { need(1); return {js:`Math.trunc(${a[0].js})`, t:'int'}; }
+      throw new Error(`Unknown function ${n.f}( ) / 不支援 ${n.f}( )`); }
+    case 'un': { const e = axJS(n.e); return n.op === '-' ? {js:`(-${e.js})`, t:e.t} : {js:`(!${e.js})`, t:'bool'}; }
+    case 'bin': { const a = axJS(n.a), b = axJS(n.b);
+      if (n.op === '&&' || n.op === '||') return {js:`(${a.js} ${n.op} ${b.js})`, t:'bool'};
+      return jsBin(a.js, n.op, b.js, a.t, b.t); }
+  }
+  throw new Error('Cannot understand expression / 看不懂運算式');
+}
+const MANIP_JS = {endl:'"\\n"', nl:'"\\n"', sp:'" "', fixed:'({m:"fixed"})'};
+Object.assign(J.forBlock, {
+  cpp_main: b => J.statementToCode(b, 'BODY') + `__step("__end", ${GET});\n`,
+  cpp_int_decl: b => `let ${f(b, 'NAMES').split(',').map(s => `${u(s.trim())} = __g(${qs(f(b, 'TYPE'))})`).join(', ')};\n`,
+  cpp_int_init: b => `let ${u(f(b, 'NAME'))} = ${conv(jv(b, 'VALUE', O.NONE), f(b, 'TYPE'))};\n`,
+  cpp_assign(b){
+    const t = jv(b, 'TARGET', O.NONE), e = jv(b, 'VALUE', O.NONE), op = f(b, 'OP'), tt = ty(b, 'TARGET');
+    if (op === '=') return `${t} = ${conv(e, tt)};\n`;
+    return `${t} = ${conv(jsBin(t, op[0], `(${e})`, tt, ty(b, 'VALUE')).js, tt)};\n`;
+  },
+  cpp_incr: b => `${jv(b, 'TARGET', O.POSTFIX)}${f(b, 'OP')};\n`,
+  cpp_var: b => [u(f(b, 'NAME')), O.ATOMIC],
+  cpp_num: b => { const n = f(b, 'NUM'); return [n, n.startsWith('-') ? O.UNARY : O.ATOMIC]; },
+  cpp_bool: b => [f(b, 'VAL'), O.ATOMIC],
+  cpp_cin: b => b.itemNames_().map(n => `${jv(b, n, O.NONE)} = __cin(${qs(ty(b, n))});`).join(' ') + '\n',
+  cpp_cout: b => b.itemNames_().map(n => `__out(${jv(b, n, O.NONE)}, ${qs(ty(b, n))});`).join(' ') + '\n',
+  cpp_cout_space: () => `__out(" ", "string");\n`,
+  cpp_cout_endl: () => `__out("\\n", "string");\n`,
+  cpp_cout_line: b => `__out(${jv(b, 'VALUE', O.NONE)}, ${qs(ty(b, 'VALUE'))}); __out("\\n", "string");\n`,
+  cpp_cout_fixed: b => `__out({m:"fixed"}); __out({m:"prec", n:${f(b, 'DIGITS')}}); __out(${jv(b, 'VALUE', O.NONE)}, ${qs(ty(b, 'VALUE'))}); __out("\\n", "string");\n`,
+  cpp_string: b => [qs(f(b, 'TEXT')), O.ATOMIC],
+  cpp_manip: b => [MANIP_JS[f(b, 'VAL')], O.ATOMIC],
+  cpp_setprec: b => [`({m:"prec", n:${f(b, 'DIGITS')}})`, O.ATOMIC],
+  cpp_vec_decl: b => `let ${u(f(b, 'NAME'))} = [];\n`,
+  cpp_vec_size: b => `let ${u(f(b, 'NAME'))} = __vec(${jv(b, 'SIZE', O.NONE)}, ${ZERO[f(b, 'TYPE')]});\n`,
+  cpp_vec_fill: b => `let ${u(f(b, 'NAME'))} = __vec(${jv(b, 'SIZE', O.NONE)}, ${conv(jv(b, 'FILL', O.NONE), f(b, 'TYPE'))});\n`,
+  cpp_push: b => `__push(${u(f(b, 'VEC'))}, ${conv(jv(b, 'VALUE', O.NONE), elemOf(f(b, 'VEC')))}, ${qs(f(b, 'VEC'))});\n`,
+  cpp_vec_stmt: b => `__${f(b, 'OP')}(${u(f(b, 'VEC'))}, ${qs(f(b, 'VEC'))});\n`,
+  cpp_vec_insert: b => `__insert(${u(f(b, 'VEC'))}, ${jv(b, 'POS', O.NONE)}, ${conv(jv(b, 'VALUE', O.NONE), elemOf(f(b, 'VEC')))}, ${qs(f(b, 'VEC'))});\n`,
+  cpp_vec_erase: b => `__erase(${u(f(b, 'VEC'))}, ${jv(b, 'POS', O.NONE)}, ${qs(f(b, 'VEC'))});\n`,
+  cpp_index: b => { const v = f(b, 'VEC'); return [`${u(v)}[__ix(${u(v)}, ${jv(b, 'INDEX', O.NONE)}, ${qs(v)})]`, O.POSTFIX]; },
+  cpp_int_size: b => [`__len(${u(f(b, 'VEC'))}, ${qs(f(b, 'VEC'))})`, O.POSTFIX],
+  cpp_size: b => [`__len(${u(f(b, 'VEC'))}, ${qs(f(b, 'VEC'))})`, O.POSTFIX],
+  cpp_empty: b => [`(__len(${u(f(b, 'VEC'))}, ${qs(f(b, 'VEC'))}) === 0)`, O.ATOMIC],
+  cpp_vec_end: b => [`__end(${u(f(b, 'VEC'))}, ${qs(f(b, 'OP'))}, ${qs(f(b, 'VEC'))})`, O.POSTFIX],
+  cpp_vec_minmax: b => [`__mm(${u(f(b, 'VEC'))}, ${qs(f(b, 'FN'))}, ${qs(f(b, 'VEC'))})`, O.POSTFIX],
+  cpp_vec_count: b => [`__count(${u(f(b, 'VEC'))}, ${jv(b, 'X', O.NONE)}, ${qs(f(b, 'VEC'))})`, O.POSTFIX],
+  cpp_sort: b => f(b, 'FN') === 'sort' ? `__sort(${u(f(b, 'VEC'))}, ${qs(f(b, 'VEC'))}, false);\n` : `__reverse(${u(f(b, 'VEC'))}, ${qs(f(b, 'VEC'))});\n`,
+  cpp_sort_desc: b => `__sort(${u(f(b, 'VEC'))}, ${qs(f(b, 'VEC'))}, true);\n`,
+  cpp_for(b){ const v = u(f(b, 'VAR'));
+    return `for (let ${v} = ${jv(b, 'FROM', O.NONE)}; ${v} ${f(b, 'CMP')} ${jv(b, 'TO', O.REL)}; ${v}${f(b, 'STEP')}) {\n  __tick();\n  __step(${qs(b.id)}, ${GET});\n${J.statementToCode(b, 'DO')}}\n`; },
+  cpp_foreach(b){ const v = u(f(b, 'VAR')), vec = u(f(b, 'VEC')), k = '__k' + (KCOUNT++);
+    return `for (let ${k} = 0; ${k} < __len(${vec}, ${qs(f(b, 'VEC'))}); ${k}++) {\n  __tick();\n  let ${v} = ${vec}[${k}];\n  __step(${qs(b.id)}, ${GET});\n${J.statementToCode(b, 'DO')}  ${vec}[${k}] = ${v};\n}\n`; },
+  cpp_foreach_val(b){ const v = u(f(b, 'VAR')), vec = u(f(b, 'VEC')), k = '__k' + (KCOUNT++), t = f(b, 'TYPE');
+    const val = t === 'auto' ? `${vec}[${k}]` : conv(`${vec}[${k}]`, t);
+    return `for (let ${k} = 0; ${k} < __len(${vec}, ${qs(f(b, 'VEC'))}); ${k}++) {\n  __tick();\n  let ${v} = ${val};\n  __step(${qs(b.id)}, ${GET});\n${J.statementToCode(b, 'DO')}}\n`; },
+  cpp_if: b => `if (${jv(b, 'COND', O.NONE)}) {\n${J.statementToCode(b, 'DO')}}\n`,
+  cpp_if_else: b => `if (${jv(b, 'COND', O.NONE)}) {\n${J.statementToCode(b, 'DO')}} else {\n${J.statementToCode(b, 'ELSE')}}\n`,
+  cpp_compare: b => { const op = f(b, 'OP'), ord = relOrd(op); return [jsBin(jv(b, 'A', ord + 0.5), op, jv(b, 'B', ord), ty(b, 'A'), ty(b, 'B')).js, O.ATOMIC]; },
+  cpp_logic: b => { const ord = f(b, 'OP') === '&&' ? O.AND : O.OR; return [`${jv(b, 'A', ord + 0.5)} ${f(b, 'OP')} ${jv(b, 'B', ord)}`, ord]; },
+  cpp_not: b => [`!${jv(b, 'A', O.UNARY)}`, O.UNARY],
+  cpp_arith: b => [jsBin(jv(b, 'A', O.NONE), f(b, 'OP'), jv(b, 'B', O.NONE), ty(b, 'A'), ty(b, 'B')).js, O.ATOMIC],
+  cpp_double: b => [`Number(${jv(b, 'A', O.NONE)})`, O.POSTFIX],
+  cpp_func2: b => [`Math.${f(b, 'FN')}(${jv(b, 'A', O.NONE)}, ${jv(b, 'B', O.NONE)})`, O.POSTFIX],
+  cpp_abs: b => [`Math.abs(${jv(b, 'A', O.NONE)})`, O.POSTFIX],
+  cpp_expr(b){
+    try { return [`(${axJS(parseExpr(f(b, 'TEXT'))).js})`, O.ATOMIC]; }
+    catch(e){ throw new RunErr('✎ ' + e.message, b.id); }
+  }
+});
+
+/* ================= Workspace ================= */
+const darkQ = window.matchMedia('(prefers-color-scheme: dark)');
+const THEME_L = Blockly.Theme.defineTheme('vecLight', {name:'vecLight', base:Blockly.Themes.Classic,
+  componentStyles:{workspaceBackgroundColour:'#fbfaf7', toolboxBackgroundColour:'#f1eee7', toolboxForegroundColour:'#1f2328', flyoutBackgroundColour:'#e9e5dc', flyoutForegroundColour:'#1f2328', flyoutOpacity:1, scrollbarColour:'#b9b2a4'}});
+const THEME_D = Blockly.Theme.defineTheme('vecDark', {name:'vecDark', base:Blockly.Themes.Classic,
+  componentStyles:{workspaceBackgroundColour:'#1a1d21', toolboxBackgroundColour:'#262a30', toolboxForegroundColour:'#e7e9ec', flyoutBackgroundColour:'#23272d', flyoutForegroundColour:'#cfd3d8', flyoutOpacity:1, scrollbarColour:'#555b64', insertionMarkerColour:'#ffffff', cursorColour:'#d0d0d0'}});
+const isDark = () => { const t = document.documentElement.dataset.theme; return t ? t === 'dark' : darkQ.matches; };
+const ws = Blockly.inject('blocklyDiv', {
+  toolbox:TOOLBOX, renderer:'zelos', media:'https://cdn.jsdelivr.net/npm/blockly@11.2.1/media/', theme:isDark() ? THEME_D : THEME_L, trashcan:true,
+  zoom:{controls:true, wheel:false, startScale:0.72, maxScale:2, minScale:0.4, scaleSpeed:1.15},
+  move:{scrollbars:true, drag:true, wheel:true}, grid:{spacing:24, length:2, colour:isDark() ? '#2a2e34' : '#e4dfd4', snap:false}
+});
+darkQ.addEventListener('change', () => ws.setTheme(isDark() ? THEME_D : THEME_L));
+new ResizeObserver(() => Blockly.svgResize(ws)).observe(document.getElementById('blocklyDiv'));
+
+const $ = id => document.getElementById(id);
+let cur = 0, lineMap = {}, codeLines = [], traceData = null, tPos = 0, playTimer = null, loading = false;
+const store = {get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }, set(k, v){ try { localStorage.setItem(k, v); } catch(e){} }};
+const keyOf = i => 'vecBlockly_' + EX[i].id;
+const getMain = () => ws.getTopBlocks(true).find(b => b.type === 'cpp_main');
+
+function loadBody(body){
+  loading = true;
+  ws.clear();
+  Blockly.serialization.workspaces.load({blocks:{languageVersion:0, blocks:[mainB(body)]}}, ws);
+  loading = false;
+  refresh(); save();
+}
+function save(){ store.set(keyOf(cur), JSON.stringify(Blockly.serialization.workspaces.save(ws))); }
+function selectEx(i){
+  if (i !== cur) setTimeout(wbSwitch, 0);
+  if (traceData) stopTrace();
+  cur = i;
+  [...$('exTabs').children].forEach((b, k) => b.classList.toggle('on', k === i));
+  renderProblem();
+  const s = store.get(keyOf(i));
+  let ok = false;
+  if (s) { try { loading = true; ws.clear(); Blockly.serialization.workspaces.load(JSON.parse(s), ws); ok = !!getMain(); } catch(e){ ok = false; } loading = false; }
+  if (!ok) loadBody(starter()); else refresh();
+  $('ansSel').innerHTML = `<option value="">Load answer… 載入參考答案</option>` + EX[i].answers.map((a, k) => `<option value="${k}">${a[0]}</option>`).join('');
+  setInput(0);
+  $('out').textContent = ''; $('runMsg').innerHTML = ''; $('testRes').innerHTML = '';
+}
+function confirmReplace(){ return ws.getAllBlocks(false).length <= 3 || confirm('Replace your current blocks? / 取代目前的積木？'); }
+
+/* ================= Problem panel ================= */
+function renderProblem(){
+  const e = EX[cur], t = e.tests[0];
+  $('problem').innerHTML = `
+    <div class="lvl">Example ${e.id} · ${e.lvl}</div>
+    <h2>${e.title} <span class="zh" style="font-size:14px">${e.zh}</span></h2>
+    <h3>Problem 題目</h3><p>${e.en}</p><p class="zh">${e.zhs}</p>
+    <h3>Input 輸入</h3><p>${e.inF}</p>
+    <h3>Output 輸出</h3><p>${e.outF}</p>
+    <h3>Constraints 限制</h3><p class="mono" style="font-size:12.5px">${e.cons}</p>
+    <h3>Sample 範例</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><div><span class="hint">Input</span><pre>${t[0]}</pre></div><div><span class="hint">Output</span><pre>${t[1]}</pre></div></div>
+    <div class="predict"><b>Predict 先猜：</b>${e.predict}<br><span class="hint">Check it in Trace. / 用「逐步追蹤」驗證。</span></div>
+    <h3>Hint 提示</h3><p>${e.hint}</p>
+    <h3>Common mistakes 常見錯誤</h3><ul>${e.mistakes.map(m => `<li>${m}</li>`).join('')}</ul>
+    <h3>Try 試一試</h3><ul>${e.tries.map(m => `<li>${m}</li>`).join('')}</ul>`;
+}
+function setInput(k){
+  $('inp').value = EX[cur].tests[k][0];
+  $('inChips').innerHTML = EX[cur].tests.map((t, j) => `<button class="btn" data-k="${j}">${j ? 'Test ' + (j + 1) : 'Sample 範例'}</button>`).join('');
+}
+
+/* ================= Code panel ================= */
+function esc(s){ return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function hl(s){
+  if (/^\s*#/.test(s)) return `<span class="t-pre">${esc(s)}</span>`;
+  const re = /("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|(\/\/.*$)|\b(\d+(?:\.\d+)?)\b|\b(int|double|for|if|else|return|using|namespace|vector)\b|\b(cin|cout|fixed|setprecision|sort|push_back|size|empty|begin|end|std)\b|(___)/g;
+  let out = '', last = 0, m;
+  while ((m = re.exec(s))) {
+    out += esc(s.slice(last, m.index));
+    const cls = m[1] ? 't-str' : m[2] ? 't-com' : m[3] ? 't-num' : m[4] ? 't-kw' : m[5] ? 't-fn' : 't-miss';
+    out += `<span class="${cls}">${esc(m[0])}</span>`; last = re.lastIndex;
+  }
+  return out + esc(s.slice(last));
+}
+function buildCpp(){
+  const main = getMain();
+  if (!main) return {lines:['// Drag the  int main() { }  block back in.', '// 請放回 int main() 積木。'], map:{}};
+  C.init && C.init(ws); C.isInitialized = true;
+  MARK = true; let raw; try { raw = C.blockToCode(main); } finally { MARK = false; }
+  const lines = [], map = {}, stack = [];
+  raw.split('\n').forEach(l => {
+    const t = l.trim();
+    if (t[0] === '\u0001') stack.push([t.slice(1), lines.length]);
+    else if (t[0] === '\u0002') { const [id, s] = stack.pop(); map[id] = [s, lines.length - 1]; }
+    else lines.push(l);
+  });
+  while (lines.length && lines[lines.length - 1] === '') lines.pop();
+  return {lines, map};
+}
+function refresh(){
+  const r = buildCpp(); codeLines = r.lines; lineMap = r.map;
+  $('code').innerHTML = codeLines.map((l, i) => `<span class="ln" data-i="${i}">${hl(l) || ' '}</span>`).join('');
+  const loose = ws.getTopBlocks(false).filter(b => b.type !== 'cpp_main').length;
+  $('wsHint').textContent = loose ? `${loose} loose block group(s) ignored — attach them to main / ${loose} 組積木未接上主程式（不會執行）` : 'Drag blocks into int main() / 把積木拖進 int main()';
+  $('wsHint').style.color = loose ? 'var(--warn)' : '';
+  ws.getAllBlocks(false).filter(b => b.type === 'cpp_expr').forEach(b => { try { parseExpr(f(b, 'TEXT')); b.setWarningText(null); } catch(e){ b.setWarningText(e.message); } });
+  markSel();
+  renderFlow();
+}
+function markSel(){
+  const s = Blockly.getSelected && Blockly.getSelected();
+  let b = s && s.workspace === ws ? s : null, range = null;
+  while (b && !(range = lineMap[b.id])) b = b.getParent();
+  if (b && b.type === 'cpp_main') range = null;
+  document.querySelectorAll('#code .ln').forEach((el, i) => el.classList.toggle('sel', !!range && i >= range[0] && i <= range[1]));
+  let fb = s && s.workspace === ws ? s : null;
+  while (fb && !FC.map[fb.id]) fb = fb.getParent();
+  flowMark(fb && fb.type !== 'cpp_main' ? fb.id : null, 'fc-sel', false);
+}
+$('code').addEventListener('click', e => {
+  const el = e.target.closest('.ln'); if (!el) return;
+  const i = +el.dataset.i; let best = null, bl = 1e9;
+  for (const [id, [s, t]] of Object.entries(lineMap)) if (i >= s && i <= t && t - s < bl) { const b = ws.getBlockById(id); if (b && b.type !== 'cpp_main') { best = b; bl = t - s; } }
+  if (best) { best.select(); ws.centerOnBlock(best.id); }
+});
+function copyBtn(id, text){ const b = $(id), t0 = b.textContent; navigator.clipboard && navigator.clipboard.writeText(text).then(() => { b.textContent = 'Copied 已複製'; setTimeout(() => b.textContent = t0, 1200); }); }
+$('bCopy').onclick = () => copyBtn('bCopy', codeLines.join('\n') + '\n');
+$('bCopyMm').onclick = () => copyBtn('bCopyMm', '```mermaid\n' + FC.text + '\n```\n');
+
+let rt = null;
+ws.addChangeListener(e => {
+  if (e.type === Blockly.Events.SELECTED) { markSel(); return; }
+  if (e.isUiEvent || loading) return;
+  clearTimeout(rt); rt = setTimeout(() => { refresh(); save(); if (traceData && traceData.code !== codeLines.join('\n')) invalidateTrace(); }, 80);
+});
+
+/* ================= Runner ================= */
+class RunErr extends Error { constructor(msg, blockId){ super(msg); this.blockId = blockId; } }
+function friendly(e){
+  let m = String(e && e.message || e);
+  let r;
+  if ((r = m.match(/u_(\w+) is not defined/))) return `'${r[1]}' was not declared — add a declaration block first. / 變數 ${r[1]} 未宣告。`;
+  if ((r = m.match(/access '?u_(\w+)'? before initialization/))) return `'${r[1]}' is used before its declaration. / ${r[1]} 在宣告之前被使用。`;
+  if ((r = m.match(/u_(\w+)'? has already been declared/))) return `'${r[1]}' is declared twice in the same block. / ${r[1]} 重複宣告。`;
+  if (/left-hand side|Invalid assignment/i.test(m)) return 'The left side of cin / = / ++ must be a variable or v[i]. / 左邊必須是變數或 v[i]。';
+  return m.replace(/u_(\w+)/g, '$1');
+}
+function compile(){
+  const main = getMain();
+  if (!main) throw new RunErr('No int main() block. / 找不到 int main() 積木。');
+  try {
+    SYM = collectSyms(main); NAMES = Object.keys(SYM); KCOUNT = 0;
+    GET = '[' + NAMES.map(n => `()=>${u(n)}`).join(',') + ']';
+    J.init && J.init(ws); J.isInitialized = true;
+    const body = J.blockToCode(main);
+    let fn;
+    try { fn = new Function('__api', '"use strict";\nconst {' + Object.keys(RT_NAMES).join(',') + '} = __api;\n' + body); }
+    catch(e){ throw new RunErr(friendly(e)); }
+    return {fn, names:NAMES.slice(), loops:new Set(LOOPVARS)};
+  } catch(e){ if (e.blockId) flagBlock(e.blockId); throw e; }
+}
+const RT_NAMES = {__cin:1, __out:1, __step:1, __tick:1, __ix:1, __idiv:1, __imod:1, __missing:1, __vec:1, __push:1, __len:1, __sort:1, __reverse:1,
+  __g:1, __conv:1, __err:1, __end:1, __mm:1, __count:1, __pop_back:1, __clear:1, __insert:1, __erase:1};
+function fmt(v){
+  if (typeof v === 'boolean') return v ? '1' : '0';
+  if (typeof v === 'number') return Number.isInteger(v) ? String(v) : String(+v.toPrecision(6));
+  if (Array.isArray(v)) throw new RunErr('cout cannot print a whole vector — use a loop. / 不能直接輸出整個 vector，要用迴圈。');
+  return String(v);
+}
+function execute(prog, input, record){
+  const tok = input.split(/\s+/).filter(Boolean);
+  let p = 0, out = '', ticks = 0, lastId = null, fixedOn = false, prec = 6;
+  const trace = [];
+  const E = msg => new RunErr(msg, lastId);
+  const isVec = (a, n) => { if (!Array.isArray(a)) throw E(`'${n}' is not a vector. / ${n} 不是 vector。`); };
+  const nonEmpty = (a, n, what) => { isVec(a, n); if (!a.length) throw E(`${what} on an empty vector '${n}' — there is no element. / 空 vector 沒有元素。`); };
+  const cmpv = (x, y) => x < y ? -1 : x > y ? 1 : 0;
+  const api = {
+    __cin(T){
+      if (p >= tok.length) throw E('cin: no more input — the program reads more values than given. / 輸入已讀完（讀取次數多於資料數量）。');
+      const t = tok[p++];
+      if (T === 'string') return t;
+      if (T === 'double') { if (!/^[-+]?(\d+\.?\d*|\.\d+)([eE][-+]?\d+)?$/.test(t)) throw E(`cin: "${t}" is not a number. / 不是數字。`); return parseFloat(t); }
+      if (T === 'bool') { if (t !== '0' && t !== '1') throw E(`cin: bool needs 0 or 1, got "${t}". / bool 只接受 0 或 1。`); return t === '1'; }
+      if (!/^[-+]?\d+$/.test(t)) throw E(`cin: "${t}" is not an integer. / 不是整數。`);
+      return parseInt(t, 10);
+    },
+    __out(v, T){
+      if (v && typeof v === 'object' && !Array.isArray(v) && v.m) { if (v.m === 'fixed') fixedOn = true; else prec = v.n; return; }
+      let s;
+      if (typeof v === 'number' && (T === 'double' || !Number.isInteger(v))) s = fixedOn ? v.toFixed(prec) : String(+v.toPrecision(Math.max(1, prec)));
+      else s = fmt(v);
+      out += s;
+      if (out.length > 100000) throw E('Output too long. / 輸出過多。');
+    },
+    __step(id, gs){ if (id !== '__end') lastId = id; if (!record || trace.length >= 3000) return;
+      const vars = {}; prog.names.forEach((n, k) => { try { const v = gs[k](); if (v !== undefined) vars[n] = Array.isArray(v) ? v.slice() : v; } catch(e){} });
+      trace.push({id, vars, out:out.length}); },
+    __tick(){ if (++ticks > 2000000) throw E('Too many steps — possible infinite loop. / 可能是無限迴圈。'); },
+    __ix(a, i, n){ isVec(a, n);
+      if (!Number.isInteger(i) || i < 0 || i >= a.length) throw E(`Out of range: ${n}[${i}], but ${n}.size() is ${a.length} (${a.length ? `valid index 0–${a.length - 1}` : 'the vector is empty / vector 是空的'}). / 索引越界。`); return i; },
+    __idiv(a, b){ if (+b === 0) throw E('Division by zero. / 除以 0。'); return Math.trunc(a / b); },
+    __imod(a, b){ if (+b === 0) throw E('Modulo by zero. / 除以 0。'); return Math.trunc(a) % Math.trunc(b); },
+    __missing(id){ throw new RunErr('A block has an empty slot. / 有積木的空格未填。', id); },
+    __vec(n, v){ if (!Number.isInteger(n) || n < 0 || n > 1000000) throw E(`Bad vector size: ${n}. / vector 長度不合理。`); return new Array(n).fill(v); },
+    __push(a, v, n){ isVec(a, n); a.push(v); },
+    __len(a, n){ isVec(a, n); return a.length; },
+    __sort(a, n, desc){ isVec(a, n); a.sort(cmpv); if (desc) a.reverse(); },
+    __reverse(a, n){ isVec(a, n); a.reverse(); },
+    __g(T){ return T === 'string' ? '' : T === 'bool' ? false : T === 'double' ? +(Math.random() * 1e5).toFixed(3) : 10000 + Math.floor(Math.random() * 90000); },
+    __conv(v, T){
+      if (T === 'int' || T === 'double') {
+        if (typeof v === 'string') throw E(`Cannot store text in a ${T}. / 不能把文字存入 ${T}。`);
+        return T === 'int' ? Math.trunc(+v) : +v;
+      }
+      if (T === 'bool') return typeof v === 'number' ? v !== 0 : v;
+      if (T === 'string' && typeof v !== 'string') throw E('Cannot store a number in a string. / 不能把數字存入 string。');
+      return v;
+    },
+    __err(m){ throw E(m); },
+    __end(a, which, n){ nonEmpty(a, n, `.${which}()`); return which === 'back' ? a[a.length - 1] : a[0]; },
+    __mm(a, fn, n){ nonEmpty(a, n, fn); return a.reduce((x, y) => (fn === 'max_element' ? cmpv(y, x) > 0 : cmpv(y, x) < 0) ? y : x); },
+    __count(a, x, n){ isVec(a, n); return a.filter(y => y === x).length; },
+    __pop_back(a, n){ nonEmpty(a, n, '.pop_back()'); a.pop(); },
+    __clear(a, n){ isVec(a, n); a.length = 0; },
+    __insert(a, pos, v, n){ isVec(a, n); if (!Number.isInteger(pos) || pos < 0 || pos > a.length) throw E(`insert position ${pos} is outside 0–${a.length}. / 插入位置越界。`); a.splice(pos, 0, v); },
+    __erase(a, pos, n){ isVec(a, n); if (!Number.isInteger(pos) || pos < 0 || pos >= a.length) throw E(`erase position ${pos} is outside 0–${a.length - 1}. / 刪除位置越界。`); a.splice(pos, 1); }
+  };
+  try { prog.fn(api); return {out, trace}; }
+  catch(e){ return {out, trace, err:e instanceof RunErr ? e.message : friendly(e), blockId:e.blockId || lastId}; }
+}
+function flagBlock(id){ const b = id && ws.getBlockById(id); if (b) { b.select(); ws.centerOnBlock(id); } }
+const showWS = s => s.replace(/ /g, '␣');
+function judge(got, exp){
+  const n = s => s.replace(/\r/g, '').replace(/\n+$/, '');
+  if (n(got) === n(exp)) return ['pass', '✓ Pass 正確'];
+  const t = s => n(s).split('\n').map(l => l.replace(/\s+$/, '')).join('\n');
+  if (t(got) === t(exp)) return ['pass', '✓ Pass 正確（行末空格不計）'];
+  return ['fail', '✗ Wrong 錯誤'];
+}
+
+$('bRun').onclick = () => {
+  $('testRes').innerHTML = '';
+  let prog; try { prog = compile(); } catch(e){ $('runMsg').innerHTML = `<div class="msg err">${esc(e.message)}</div>`; $('out').textContent = ''; return; }
+  const r = execute(prog, $('inp').value, false);
+  $('out').textContent = showWS(r.out);
+  if (r.err) { $('runMsg').innerHTML = `<div class="msg err">Runtime error 執行錯誤：${esc(r.err)}</div>`; flagBlock(r.blockId); }
+  else {
+    const k = EX[cur].tests.findIndex(t => t[0].trim() === $('inp').value.trim());
+    if (k >= 0) { const [c, label] = judge(r.out, EX[cur].tests[k][1]); $('runMsg').innerHTML = `<div class="msg ${c === 'pass' ? 'ok' : c === 'pe' ? 'warn' : 'err'}">${label}</div>`; }
+    else $('runMsg').innerHTML = `<div class="msg ok">Finished 程式結束</div>`;
+  }
+};
+$('bTest').onclick = () => {
+  $('runMsg').innerHTML = ''; $('out').textContent = '';
+  let prog; try { prog = compile(); } catch(e){ $('runMsg').innerHTML = `<div class="msg err">${esc(e.message)}</div>`; return; }
+  let passed = 0;
+  const rows = EX[cur].tests.map(([inp, exp], k) => {
+    const r = execute(prog, inp, false);
+    let c, label;
+    if (r.err) { c = 'fail'; label = '✗ ' + esc(r.err); } else { [c, label] = judge(r.out, exp); }
+    if (c === 'pass') passed++;
+    return `<tr><td>${k ? 'Test ' + (k + 1) : 'Sample'}</td><td><pre>${esc(inp)}</pre></td><td><pre>${esc(showWS(exp))}</pre></td><td><pre>${esc(showWS(r.out))}</pre></td><td class="${c}">${label}</td></tr>`;
+  }).join('');
+  const all = passed === EX[cur].tests.length;
+  $('testRes').innerHTML = `<div class="msg ${all ? 'ok' : 'warn'}">${passed} / ${EX[cur].tests.length} passed 通過${all ? ' — well done 完成！' : ''}</div>
+    <table class="res"><tr><th>#</th><th>Input</th><th>Expected 預期</th><th>Yours 你的</th><th>Result</th></tr>${rows}</table>`;
+};
+$('inChips').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { $('inp').value = EX[cur].tests[+b.dataset.k][0]; } });
+
+/* ================= Trace ================= */
+function stopTrace(){ clearInterval(playTimer); playTimer = null; $('tPlay').textContent = '▶ Play'; traceData = null; ws.highlightBlock(null); flowMark(null, 'fc-cur', false); }
+function invalidateTrace(){ stopTrace(); $('tMsg').innerHTML = `<div class="msg warn">Blocks changed — press Start again. / 積木已改動，請重新開始。</div>`; $('tNow').hidden = true; }
+$('tStart').onclick = () => {
+  stopTrace(); $('tMsg').innerHTML = '';
+  let prog; try { prog = compile(); } catch(e){ $('tMsg').innerHTML = `<div class="msg err">${esc(e.message)}</div>`; return; }
+  const r = execute(prog, $('inp').value, true);
+  refresh(); traceData = {code:codeLines.join('\n'), steps:r.trace, out:r.out, err:r.err, blockId:r.blockId, loops:prog.loops};
+  if (r.err) traceData.steps.push({id:r.blockId, vars:(r.trace[r.trace.length - 1] || {vars:{}}).vars, out:r.out.length, err:r.err});
+  if (r.trace.length >= 3000) $('tMsg').innerHTML = `<div class="msg warn">Only the first 3000 steps are shown. / 只顯示首 3000 步。</div>`;
+  $('tSlider').max = Math.max(0, traceData.steps.length - 1);
+  showStep(0);
+};
+function showStep(k){
+  if (!traceData || !traceData.steps.length) return;
+  tPos = Math.max(0, Math.min(k, traceData.steps.length - 1));
+  $('tSlider').value = tPos;
+  const s = traceData.steps[tPos], prev = traceData.steps[tPos - 1];
+  const end = s.id === '__end';
+  ws.highlightBlock(end ? null : s.id);
+  flowMark(end ? '__end' : s.id, 'fc-cur', true);
+  const b = !end && s.id && ws.getBlockById(s.id);
+  let now = end ? 'Program finished. / 程式結束。' : b ? C.blockToCode(b, true) : '';
+  if (Array.isArray(now)) now = now[0];
+  now = String(now).split('\n')[0];
+  $('tNow').hidden = false;
+  $('tNow').innerHTML = `<span class="hint">Step ${tPos + 1} / ${traceData.steps.length}</span>\n` + (s.err ? `<span style="color:var(--bad)">Error 錯誤：${esc(s.err)}</span>\n` : '') + hl(now);
+  const pv = prev ? prev.vars : {};
+  const sc = Object.entries(s.vars).filter(([, v]) => !Array.isArray(v));
+  $('tVars').innerHTML = sc.length ? sc.map(([n, v]) => `<span class="var${prev && pv[n] !== v ? ' chg' : ''}"><b>${n}</b>${fmt(v)}</span>`).join('') : '<span class="hint">No variables yet / 尚未有變數</span>';
+  $('tVecs').innerHTML = Object.entries(s.vars).filter(([, v]) => Array.isArray(v)).map(([n, a]) => {
+    const pa = Array.isArray(pv[n]) ? pv[n] : null;
+    const ptrs = sc.filter(([vn, vv]) => traceData.loops.has(vn) && Number.isInteger(vv) && vv >= 0 && vv < a.length);
+    const cells = a.map((v, i) => {
+      const p = ptrs.filter(([, vv]) => vv === i).map(([vn]) => vn).join(',');
+      const chg = prev && (!pa || pa[i] !== v);
+      return `<div class="cellw">${p ? `<span class="ptr">${p}↓</span>` : ''}<div class="cell${chg ? ' chg' : ''}${p ? ' ptd' : ''}">${v}</div><span class="idx">${i}</span></div>`;
+    }).join('');
+    return `<div class="vec"><div class="vh">${n} · size() = ${a.length}</div>${a.length ? `<div class="cells">${cells}</div>` : '<span class="empty-vec">[ ] empty 空</span>'}</div>`;
+  }).join('');
+  $('tOut').textContent = showWS(traceData.out.slice(0, s.out));
+}
+$('tPrev').onclick = () => showStep(tPos - 1);
+$('tNext').onclick = () => { if (!traceData) $('tStart').onclick(); else showStep(tPos + 1); };
+$('tSlider').oninput = e => showStep(+e.target.value);
+$('tPlay').onclick = () => {
+  if (!traceData) $('tStart').onclick();
+  if (!traceData) return;
+  if (playTimer) { clearInterval(playTimer); playTimer = null; $('tPlay').textContent = '▶ Play'; return; }
+  if (tPos >= traceData.steps.length - 1) showStep(0);
+  $('tPlay').textContent = '❚❚ Pause';
+  playTimer = setInterval(() => { if (!traceData || tPos >= traceData.steps.length - 1) { clearInterval(playTimer); playTimer = null; $('tPlay').textContent = '▶ Play'; return; } showStep(tPos + 1); }, 700);
+};
+document.querySelector('.ptabs').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  document.querySelectorAll('.ptabs button').forEach(x => x.classList.toggle('on', x === b));
+  $('pane-run').hidden = b.dataset.p !== 'run'; $('pane-trace').hidden = b.dataset.p !== 'trace';
+  if (b.dataset.p === 'run' && traceData) stopTrace();
+});
+
+/* ================= Flowchart (Mermaid) ================= */
+let FC = {text:'', map:{}, rev:{}}, fcSeq = 0, fcLast = '';
+const IO_TYPES = new Set(['cpp_cin', 'cpp_cout', 'cpp_cout_space', 'cpp_cout_endl', 'cpp_cout_line', 'cpp_cout_fixed']);
+const mmEsc = t => t.replace(/&/g, '#38;').replace(/\\/g, '#92;').replace(/"/g, '#34;').replace(/</g, '#60;').replace(/>/g, '#62;').replace(/\n/g, '<br/>');
+function buildFlow(){
+  const main = getMain();
+  if (!main) return null;
+  C.init && C.init(ws); C.isInitialized = true;
+  let k = 0;
+  const lines = ['flowchart TD'], map = {}, rev = {};
+  const node = (b, shape, text) => {
+    const id = 'n' + (k++), q = '"' + mmEsc(text) + '"';
+    lines.push(id + ({rect:`[${q}]`, io:`[/${q}/]`, dia:`{${q}}`, hex:`{{${q}}}`, term:`([${q}])`})[shape]);
+    if (b) { if (!map[b.id]) map[b.id] = id; rev[id] = b.id; }
+    return id;
+  };
+  const link = (ins, to) => ins.forEach(([from, lab]) => lines.push(lab ? `${from} -->|"${mmEsc(lab)}"| ${to}` : `${from} --> ${to}`));
+  function build(b, ins){
+    for (; b; b = b.getNextBlock()) {
+      const t = b.type;
+      if (t === 'cpp_if' || t === 'cpp_if_else') {
+        const d = node(b, 'dia', `if 條件\n${cv(b, 'COND', O.NONE)} ?`); link(ins, d);
+        const a = build(b.getInputTargetBlock('DO'), [[d, 'true 是']]);
+        const e = t === 'cpp_if_else' ? build(b.getInputTargetBlock('ELSE'), [[d, 'false 否']]) : [[d, 'false 否']];
+        ins = a.concat(e);
+      } else if (t === 'cpp_for') {
+        const v = f(b, 'VAR');
+        const from = cv(b, 'FROM', O.NONE), cond = `${v} ${f(b, 'CMP')} ${cv(b, 'TO', O.REL)}`, up = f(b, 'STEP') === '++';
+        const d = node(b, 'dia', `for (int ${v} = ${from};\n${cond} ?\n${v}${f(b, 'STEP')})`); link(ins, d);
+        const ex = build(b.getInputTargetBlock('DO'), [[d, `${cond} 是：進入迴圈`]]);
+        link(ex.map(([fr, l]) => [fr, (l ? l + '；' : '') + `${v}${f(b, 'STEP')}（${v} ${up ? '加' : '減'} 1）`]), d);
+        ins = [[d, `${cond} 否：離開迴圈`]];
+      } else if (t === 'cpp_foreach' || t === 'cpp_foreach_val') {
+        const d = node(b, 'dia', `for (${f(b, 'TYPE')} ${t === 'cpp_foreach' ? '&' : ''}${f(b, 'VAR')} : ${f(b, 'VEC')})\n${f(b, 'VEC')} 還有下一個值？ next value?`); link(ins, d);
+        link(build(b.getInputTargetBlock('DO'), [[d, '有：放入 ' + f(b, 'VAR')]]), d);
+        ins = [[d, '沒有：離開迴圈']];
+      } else {
+        const d = node(b, IO_TYPES.has(t) ? 'io' : 'rect', String(C.blockToCode(b, true)).split('\n')[0].trim()); link(ins, d);
+        ins = [[d, '']];
+      }
+    }
+    return ins;
+  }
+  const s = node(null, 'term', 'Start 開始'); rev[s] = main.id;
+  const e = node(null, 'term', 'return 0; 結束'); map['__end'] = e;
+  link(build(main.getInputTargetBlock('BODY'), [[s, '']]), e);
+  lines.push('classDef io fill:#dceefb,stroke:#2E86AB', 'classDef dia fill:#efe6fa,stroke:#7B5EA7');
+  return {text:lines.join('\n'), map, rev};
+}
+function mmInit(){ if (window.mermaid) mermaid.initialize({startOnLoad:false, securityLevel:'strict', theme:isDark() ? 'dark' : 'neutral',
+  themeVariables:{fontFamily:'"JetBrains Mono","Noto Sans TC",monospace', fontSize:document.documentElement.classList.contains('proj') ? '17px' : '13px'}, flowchart:{curve:'basis', nodeSpacing:28, rankSpacing:34, useMaxWidth:false}}); }
+mmInit();
+darkQ.addEventListener('change', () => { mmInit(); fcLast = ''; renderFlow(); });
+async function renderFlow(){
+  const box = $('flow'), r = buildFlow();
+  if (!r) { FC = {text:'', map:{}, rev:{}}; fcLast = ''; box.innerHTML = '<p class="hint">Drag the int main() block back in. / 請放回 int main() 積木。</p>'; return; }
+  FC = r;
+  if (!window.mermaid) { box.innerHTML = '<p class="hint">Flowchart needs internet (Mermaid). / 流程圖需要上網載入 Mermaid。</p>'; return; }
+  if (r.text === fcLast) return;
+  fcLast = r.text;
+  const my = ++fcSeq, id = 'fcsvg' + my;
+  try {
+    const {svg} = await mermaid.render(id, r.text);
+    if (my !== fcSeq) return;
+    box.innerHTML = svg;
+    for (const nid of Object.keys(r.rev)) {
+      const el = flowEl(nid);
+      if (el) el.addEventListener('click', () => { const b = ws.getBlockById(r.rev[nid]); if (b) { b.select(); ws.centerOnBlock(b.id); } });
+    }
+    if (traceData) { const st = traceData.steps[tPos]; if (st) flowMark(st.id === '__end' ? '__end' : st.id, 'fc-cur', false); }
+    markSel();
+  } catch(e) {
+    const junk = document.getElementById('d' + id); if (junk) junk.remove();
+    if (my === fcSeq) box.innerHTML = `<div class="msg err">Flowchart error: ${esc(String(e.message || e))}</div>`;
+  }
+}
+const flowEl = nid => $('flow').querySelector(`[id^="flowchart-${nid}-"]`);
+function flowMark(blockId, cls, scroll){
+  $('flow').querySelectorAll('.' + cls).forEach(el => el.classList.remove(cls));
+  const nid = blockId && FC.map[blockId], el = nid && flowEl(nid);
+  if (!el) return;
+  el.classList.add(cls);
+  if (scroll) el.scrollIntoView({block:'nearest', inline:'nearest'});
+}
+/* ================= Whiteboard 白板筆記 ================= */
+const WB_FILE = 'Whiteboard_202611231531.html';
+let wbReady = false, wbReq = 0, wbEx = 0, wbTimer = null;
+const wbPending = {};
+const wbFrame = () => document.querySelector('#wb iframe');
+const wbKey = i => 'vecBlockly_wb_' + EX[i].id;
+function wbPost(m){ const fr = wbFrame(); if (fr) fr.contentWindow.postMessage(m, '*'); }
+function wbStat(t){ $('wbStatus').textContent = t; }
+function wbGet(){
+  return new Promise(res => {
+    const id = ++wbReq; wbPending[id] = res; wbPost({type:'oj:get', reqId:id});
+    setTimeout(() => { if (wbPending[id]) { delete wbPending[id]; res(null); } }, 3000);
+  });
+}
+async function wbSave(){
+  if (!wbReady) return;
+  clearTimeout(wbTimer);
+  const i = wbEx, b = await wbGet();
+  if (b) { store.set(wbKey(i), JSON.stringify(b)); wbPost({type:'oj:saved'}); wbStat('✓ Saved 已儲存'); }
+}
+function wbLoad(){
+  wbEx = cur; let b = null;
+  try { b = JSON.parse(store.get(wbKey(cur)) || 'null'); } catch(e){ b = null; }
+  wbPost({type:'oj:load', board:b});
+  $('wbTitle').textContent = `Example ${EX[cur].id} · ${EX[cur].title}`; wbStat('');
+}
+async function wbSwitch(){ if (!wbReady) return; await wbSave(); wbLoad(); }
+window.addEventListener('message', e => {
+  const fr = wbFrame(); if (!fr || e.source !== fr.contentWindow) return;
+  const d = e.data || {};
+  if (d.type === 'oj:ready') { wbReady = true; wbLoad(); }
+  else if (d.type === 'oj:dirty' && d.dirty) { wbStat('Editing… 編輯中'); clearTimeout(wbTimer); wbTimer = setTimeout(wbSave, 1200); }
+  else if (d.type === 'oj:data') { const r = wbPending[d.reqId]; if (r) { delete wbPending[d.reqId]; r(d.board); } }
+});
+function setWb(on){
+  if (on && !wbFrame()) { const fr = document.createElement('iframe'); fr.src = WB_FILE; fr.title = 'Whiteboard 白板筆記'; $('wb').appendChild(fr); }
+  if (!on) wbSave();
+  $('wb').hidden = !on; $('bWb').classList.toggle('on', on);
+}
+$('bWb').onclick = () => setWb($('wb').hidden);
+$('wbClose').onclick = () => setWb(false);
+$('wbFull').onclick = () => $('wb').classList.toggle('full');
+window.addEventListener('beforeunload', () => { if (wbReady) wbSave(); });
+
+/* layout toggles 版面切換 */
+function setProb(on){ document.querySelector('.app').classList.toggle('noprob', !on); $('bProb').classList.toggle('on', on); store.set('vecBlockly_prob', on ? '1' : '0'); }
+function setProj(on){
+  document.documentElement.classList.toggle('proj', on); $('bProj').classList.toggle('on', on); store.set('vecBlockly_proj', on ? '1' : '0');
+  ws.setScale(on ? 1.0 : 0.72); mmInit(); fcLast = ''; renderFlow();
+}
+$('bProb').onclick = () => setProb(document.querySelector('.app').classList.contains('noprob'));
+$('bProj').onclick = () => setProj(!document.documentElement.classList.contains('proj'));
+{ const sp = store.get('vecBlockly_prob'); setProb(sp ? sp === '1' : window.innerWidth >= 1500); }
+if (store.get('vecBlockly_proj') === '1') setProj(true);
+
+/* ================= Toolbar ================= */
+$('exTabs').innerHTML = EX.map(e => `<button>${e.id} ${e.title} <small>${e.zh}</small></button>`).join('');
+$('exTabs').addEventListener('click', e => { const b = e.target.closest('button'); if (b) selectEx([...$('exTabs').children].indexOf(b)); });
+$('bStarter').onclick = () => { if (confirmReplace()) loadBody(starter()); };
+$('bClear').onclick = () => { if (confirmReplace()) loadBody([]); };
+$('ansSel').onchange = e => { const k = e.target.value; e.target.value = ''; if (k !== '' && confirmReplace()) loadBody(EX[cur].answers[+k][1]()); };
+$('bUndo').onclick = () => ws.undo(false);
+$('bRedo').onclick = () => ws.undo(true);
+
+selectEx(0);
+</script>
+</body>
+</html>
