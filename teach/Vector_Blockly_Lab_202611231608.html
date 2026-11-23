@@ -113,12 +113,14 @@
           p.push();
           p.translate(px[i], py[i]);
           p.rotate(pa[i]);
-          p.textSize(size * pk[i] * (0.9 + 0.24 * depth));
+          // Draw at 4x font size, then scale down: browsers clamp tiny canvas fonts (~6px).
+          p.scale(0.25);
+          p.textSize(size * pk[i] * (0.9 + 0.24 * depth) * 4);
           // Extruded side, then the lit face.
           p.fill(50, 40, 28, 120 + 100 * depth);
-          p.text(glyph, thick * 2, thick * 2);
+          p.text(glyph, thick * 8, thick * 8);
           p.fill(122, 96, 54, 150 + 90 * depth);
-          p.text(glyph, thick, thick);
+          p.text(glyph, thick * 4, thick * 4);
           p.fill(186 + 69 * depth, 190 + 30 * depth, 178 - 50 * depth, 215 + 40 * depth);
           p.text(glyph, 0, 0);
           p.pop();
