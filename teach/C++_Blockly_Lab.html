@@ -172,7 +172,11 @@ window.addEventListener('load', () => { try { window.makeClassLogo && window.mak
   --code-bg:#1a1d21; --hl:#3a3020; --kw:#c79bf2; --fn:#6fb6e8; --str:#f0a77a; --num:#7fd8ad; --pre:#e2c36b; --com:#7f8893;
   --cell:#23272d; --cell-line:#4a505a; --cell-chg:#5a4320;
 }
-.blocklyToolboxDiv .blocklyTreeLabel{font-size:14px}
+/* Toolbox categories at 80% of their previous size. 積木目錄縮小 20%。 */
+.blocklyToolboxDiv{padding:3.2px 0}
+.blocklyToolboxDiv .blocklyTreeRow{height:17.6px;line-height:17.6px;margin-bottom:2.4px;padding-right:6.4px}
+.blocklyToolboxDiv .blocklyTreeLabel{font-size:11.2px}
+.blocklyToolboxDiv .blocklyTreeIcon{zoom:.8}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%}
 body{background:var(--bg);color:var(--ink);font:12px/1.5 "Noto Sans TC",system-ui,-apple-system,sans-serif}
