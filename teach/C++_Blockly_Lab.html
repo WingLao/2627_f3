@@ -1030,7 +1030,7 @@ const THEME_D = Blockly.Theme.defineTheme('vecDark', {name:'vecDark', base:Block
 const isDark = () => { const t = document.documentElement.dataset.theme; return t ? t === 'dark' : darkQ.matches; };
 const ws = Blockly.inject('blocklyDiv', {
   toolbox:TOOLBOX, renderer:'zelos', media:'https://cdn.jsdelivr.net/npm/blockly@11.2.1/media/', theme:isDark() ? THEME_D : THEME_L, trashcan:true,
-  zoom:{controls:true, wheel:false, startScale:0.72, maxScale:2, minScale:0.4, scaleSpeed:1.15},
+  zoom:{controls:true, wheel:false, startScale:0.576, maxScale:2, minScale:0.4, scaleSpeed:1.15},
   move:{scrollbars:true, drag:true, wheel:true}, grid:{spacing:24, length:2, colour:isDark() ? '#2a2e34' : '#e4dfd4', snap:false}
 });
 darkQ.addEventListener('change', () => ws.setTheme(isDark() ? THEME_D : THEME_L));
@@ -1481,7 +1481,7 @@ new ResizeObserver(() => document.documentElement.style.setProperty('--hh', docu
 function setProb(on){ document.querySelector('.app').classList.toggle('noprob', !on); $('bProb').classList.toggle('on', on); store.set('vecBlockly_prob', on ? '1' : '0'); }
 function setProj(on){
   document.documentElement.classList.toggle('proj', on); $('bProj').classList.toggle('on', on); store.set('vecBlockly_proj', on ? '1' : '0');
-  ws.setScale(on ? 1.0 : 0.72); mmInit(); fcLast = ''; renderFlow();
+  ws.setScale(on ? 0.8 : 0.576); mmInit(); fcLast = ''; renderFlow();
 }
 $('bProb').onclick = () => setProb(document.querySelector('.app').classList.contains('noprob'));
 $('bProj').onclick = () => setProj(!document.documentElement.classList.contains('proj'));
