@@ -50,7 +50,7 @@
       };
       const fit = () => {
         scale = Math.min(p.width * 0.44, p.height * 1.02);
-        count = Math.max(1, Math.round(total * scale / (scale * 0.05 + 0.27) / UNIT.length)) * UNIT.length;
+        count = Math.max(1, Math.round(total * scale / (scale * 0.1 + 0.54) / UNIT.length)) * UNIT.length;
         px = new Float32Array(count); py = new Float32Array(count); pk = new Float32Array(count);
         pz = new Float32Array(count); pa = new Float32Array(count);
         order = Array.from({ length: count }, (_, i) => i);
@@ -105,7 +105,7 @@
         }
         order.sort((a, b) => pz[a] - pz[b]);
 
-        const size = scale * 0.0667;
+        const size = scale * 0.1333;
         for (const i of order) {
           const depth = Math.max(0, Math.min(1, pz[i] / 0.7 + 0.5)); // 0 back, 1 front
           const glyph = UNIT[i % UNIT.length];
