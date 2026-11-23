@@ -152,6 +152,7 @@ window.addEventListener('load', () => { try { window.makeClassLogo && window.mak
 <style>
 :root{
   --hh:53px;
+  --brand-bg:#1f2f43;
   --bg:#f6f4ef; --panel:#ffffff; --panel2:#f1eee7; --ink:#1f2328; --muted:#5f6670; --line:#dcd7cc;
   --accent:#d9822b; --accent-ink:#ffffff; --ok:#2f8a4c; --bad:#c0392b; --warn:#b7791f;
   --code-bg:#fbfaf7; --hl:#fff1d6; --kw:#7b3fb3; --fn:#1d6fa5; --str:#a3501b; --num:#1b7f5b; --pre:#8a6d00; --com:#7c8590;
@@ -171,37 +172,38 @@ window.addEventListener('load', () => { try { window.makeClassLogo && window.mak
   --code-bg:#1a1d21; --hl:#3a3020; --kw:#c79bf2; --fn:#6fb6e8; --str:#f0a77a; --num:#7fd8ad; --pre:#e2c36b; --com:#7f8893;
   --cell:#23272d; --cell-line:#4a505a; --cell-chg:#5a4320;
 }
+.blocklyToolboxDiv .blocklyTreeLabel{font-size:14px}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%}
-body{background:var(--bg);color:var(--ink);font:14px/1.5 "Noto Sans TC",system-ui,-apple-system,sans-serif}
+body{background:var(--bg);color:var(--ink);font:12px/1.5 "Noto Sans TC",system-ui,-apple-system,sans-serif}
 code,pre,.mono,textarea{font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;font-variant-ligatures:none}
 header{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--panel)}
-header h1{font-size:16px;margin:0;font-weight:700;letter-spacing:.2px}
+header h1{font-size:14px;margin:0;font-weight:700;letter-spacing:.2px}
 header h1 small{font-weight:400;color:var(--muted);margin-left:6px}
 .tabs-ex{display:flex;gap:6px;flex-wrap:wrap}
-.tabs-ex button{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:8px;padding:5px 10px;cursor:pointer;font:inherit;font-size:13px}
-.tabs-ex button small{font-size:11.5px;opacity:.8;margin-left:2px}
+.tabs-ex button{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:8px;padding:5px 10px;cursor:pointer;font:inherit;font-size:11px}
+.tabs-ex button small{font-size:9.5px;opacity:.8;margin-left:2px}
 .tabs-ex button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
 .app{display:grid;grid-template-columns:300px minmax(0,1.3fr) minmax(330px,1fr) minmax(300px,.95fr);height:calc(100vh - var(--hh));min-height:560px}
 .app.noprob{grid-template-columns:minmax(0,1.3fr) minmax(330px,1fr) minmax(300px,.95fr)}
 .app.noprob #problem{display:none}
 #mid,#flowCol{display:flex;flex-direction:column;border-left:1px solid var(--line);background:var(--panel);min-height:0}
 #flowWrap{flex:1;overflow:auto;background:var(--code-bg);min-height:0}
-.legend{font-weight:400;color:var(--muted);font-size:11.5px;white-space:normal}
+.legend{font-weight:400;color:var(--muted);font-size:9.5px;white-space:normal}
 header{flex-wrap:nowrap}
 header .sp{flex:1}
-/* Blue header 藍色頁首 */
-header{background:#2c4259;border-bottom-color:#1f2f43;color:#fff}
+/* Header and logo share the same background. 頁首與 LOGO 底色一致。 */
+header{background:var(--brand-bg);border-bottom-color:#1f2f43;color:#fff}
 header h1 small{color:#c9d6e2}
 header .tabs-ex button,header>.btn{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.24);color:#fff}
 header .tabs-ex button:hover,header>.btn:hover{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.45)}
 header .tabs-ex button.on,header>.btn.tog.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-header .class-logo{background:#1f2f43;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) header{background:#1d2b3a;border-bottom-color:#13202c} }
-:root[data-theme="dark"] header{background:#1d2b3a;border-bottom-color:#13202c}
+header .class-logo{background:var(--brand-bg);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) header{background:var(--brand-bg);border-bottom-color:#13202c} }
+:root[data-theme="dark"] header{background:var(--brand-bg);border-bottom-color:#13202c}
 .brand{display:flex;flex:none;border-radius:9px;line-height:0}
 .brand:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.class-logo{position:relative;display:block;width:100px;height:50px;border-radius:9px;background:#1f2f43;overflow:hidden}
+.class-logo{position:relative;display:block;width:100px;height:50px;border-radius:9px;background:var(--brand-bg);overflow:hidden}
 .class-logo canvas{position:absolute;inset:0;width:100%!important;height:100%!important;display:block}
 .logo-fallback{width:100%;height:100%;display:block}
 .logo-ready .logo-fallback{display:none}
@@ -220,29 +222,29 @@ header>.btn{flex:0 0 auto;white-space:nowrap}
 .tog.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
 .app>section{min-width:0;min-height:0}
 #problem{overflow:auto;padding:14px 16px;border-right:1px solid var(--line);background:var(--panel)}
-#problem h2{font-size:17px;margin:0 0 2px}
-#problem .lvl{color:var(--accent);font-weight:600;font-size:12px}
-#problem h3{font-size:13px;margin:14px 0 4px;color:var(--muted);text-transform:none}
+#problem h2{font-size:15px;margin:0 0 2px}
+#problem .lvl{color:var(--accent);font-weight:600;font-size:10px}
+#problem h3{font-size:11px;margin:14px 0 4px;color:var(--muted);text-transform:none}
 #problem p{margin:4px 0}
 #problem .zh{color:var(--muted)}
-#problem pre{background:var(--code-bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px;margin:4px 0;font-size:13px;white-space:pre-wrap}
+#problem pre{background:var(--code-bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px;margin:4px 0;font-size:11px;white-space:pre-wrap}
 #problem ul{margin:4px 0;padding-left:18px}
 #problem li{margin:3px 0}
-#problem code{background:var(--panel2);padding:0 4px;border-radius:4px;font-size:12.5px}
+#problem code{background:var(--panel2);padding:0 4px;border-radius:4px;font-size:10.5px}
 .predict{border-left:3px solid var(--accent);background:var(--panel2);padding:6px 10px;border-radius:0 6px 6px 0;margin-top:8px}
 #blocks{display:flex;flex-direction:column}
 .toolbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:8px 10px;border-bottom:1px solid var(--line);background:var(--panel)}
 .toolbar .sp{flex:1}
-.btn{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:7px;padding:5px 10px;cursor:pointer;font:inherit;font-size:13px}
+.btn{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:7px;padding:5px 10px;cursor:pointer;font:inherit;font-size:11px}
 .btn:hover{border-color:var(--accent)}
 .btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
 select.btn{padding:5px 6px}
-.hint{color:var(--muted);font-size:12px}
+.hint{color:var(--muted);font-size:10px}
 #blocklyDiv{flex:1;min-height:0;position:relative}
 .card-head{display:flex;align-items:center;gap:8px;white-space:nowrap;padding:8px 12px;border-bottom:1px solid var(--line);font-weight:600}
 .card-head .sp{flex:1}
 #codeWrap{flex:0 0 46%;overflow:auto;background:var(--code-bg);border-bottom:1px solid var(--line)}
-#code{margin:0;padding:8px 0;font-size:13px;line-height:1.55;counter-reset:ln}
+#code{margin:0;padding:8px 0;font-size:11px;line-height:1.55;counter-reset:ln}
 #code .ln{display:block;padding:0 12px 0 44px;position:relative;white-space:pre;cursor:pointer}
 #code .ln::before{counter-increment:ln;content:counter(ln);position:absolute;left:0;width:32px;text-align:right;color:var(--com);opacity:.7}
 #code .ln.sel{background:var(--hl)}
@@ -254,39 +256,39 @@ select.btn{padding:5px 6px}
 .ptabs button.on{color:var(--ink);border-bottom-color:var(--accent)}
 .pane{flex:1;overflow:auto;padding:10px 12px;min-height:0}
 .pane[hidden]{display:none}
-label.small{font-size:12px;color:var(--muted);display:block;margin:6px 0 3px}
-textarea{width:100%;min-height:58px;resize:vertical;background:var(--code-bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:13px "JetBrains Mono",monospace}
+label.small{font-size:10px;color:var(--muted);display:block;margin:6px 0 3px}
+textarea{width:100%;min-height:58px;resize:vertical;background:var(--code-bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:11px "JetBrains Mono",monospace}
 .chips{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
-.chips button{font-size:12px;padding:2px 8px}
+.chips button{font-size:10px;padding:2px 8px}
 .row{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
-.outbox{background:var(--code-bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px;min-height:34px;white-space:pre-wrap;font:13px "JetBrains Mono",monospace;margin:0}
-.msg{padding:6px 10px;border-radius:6px;margin:6px 0;font-size:13px}
+.outbox{background:var(--code-bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px;min-height:34px;white-space:pre-wrap;font:11px "JetBrains Mono",monospace;margin:0}
+.msg{padding:6px 10px;border-radius:6px;margin:6px 0;font-size:11px}
 .msg.err{background:color-mix(in srgb,var(--bad) 14%,transparent);color:var(--bad);border:1px solid color-mix(in srgb,var(--bad) 40%,transparent)}
 .msg.ok{background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok);border:1px solid color-mix(in srgb,var(--ok) 40%,transparent)}
 .msg.warn{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn);border:1px solid color-mix(in srgb,var(--warn) 40%,transparent)}
-table.res{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
+table.res{width:100%;border-collapse:collapse;font-size:10.5px;margin-top:6px}
 table.res th,table.res td{border:1px solid var(--line);padding:4px 6px;vertical-align:top;text-align:left}
-table.res td pre{margin:0;white-space:pre-wrap;font:12px "JetBrains Mono",monospace}
+table.res td pre{margin:0;white-space:pre-wrap;font:10px "JetBrains Mono",monospace}
 .pass{color:var(--ok);font-weight:700}.fail{color:var(--bad);font-weight:700}.pe{color:var(--warn);font-weight:700}
 .trace-ctl{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .trace-ctl input[type=range]{flex:1;min-width:120px;accent-color:var(--accent)}
-.now{margin:8px 0;padding:6px 10px;background:var(--hl);border-radius:6px;font:13px "JetBrains Mono",monospace;white-space:pre-wrap}
+.now{margin:8px 0;padding:6px 10px;background:var(--hl);border-radius:6px;font:11px "JetBrains Mono",monospace;white-space:pre-wrap}
 .vars{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
-.var{border:1px solid var(--cell-line);background:var(--cell);border-radius:6px;padding:3px 8px;font:13px "JetBrains Mono",monospace}
+.var{border:1px solid var(--cell-line);background:var(--cell);border-radius:6px;padding:3px 8px;font:11px "JetBrains Mono",monospace}
 .var b{color:var(--muted);font-weight:400;margin-right:4px}
 .var.chg,.cell.chg{background:var(--cell-chg)}
 .vec{margin:10px 0}
-.vec .vh{font:12.5px "JetBrains Mono",monospace;color:var(--muted);margin-bottom:3px}
+.vec .vh{font:10.5px "JetBrains Mono",monospace;color:var(--muted);margin-bottom:3px}
 .cells{display:flex;flex-wrap:wrap;gap:0}
 .cellw{display:flex;flex-direction:column;align-items:center;position:relative;padding-top:16px}
-.cell{min-width:38px;height:34px;border:1.5px solid var(--cell-line);margin-left:-1.5px;display:flex;align-items:center;justify-content:center;background:var(--cell);font:13px "JetBrains Mono",monospace;padding:0 4px}
+.cell{min-width:38px;height:34px;border:1.5px solid var(--cell-line);margin-left:-1.5px;display:flex;align-items:center;justify-content:center;background:var(--cell);font:11px "JetBrains Mono",monospace;padding:0 4px}
 .cellw:first-child .cell{margin-left:0}
-.idx{font:11px "JetBrains Mono",monospace;color:var(--muted)}
-.ptr{position:absolute;top:0;font:11px "JetBrains Mono",monospace;color:var(--accent);font-weight:700}
+.idx{font:9px "JetBrains Mono",monospace;color:var(--muted)}
+.ptr{position:absolute;top:0;font:9px "JetBrains Mono",monospace;color:var(--accent);font-weight:700}
 .cell.ptd{border-color:var(--accent);box-shadow:inset 0 0 0 1.5px var(--accent)}
-.empty-vec{color:var(--muted);font-style:italic;font-size:12px}
+.empty-vec{color:var(--muted);font-style:italic;font-size:10px}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden}
-.seg button{border:0;background:var(--panel2);color:var(--muted);padding:4px 10px;font:inherit;font-size:13px;cursor:pointer}
+.seg button{border:0;background:var(--panel2);color:var(--muted);padding:4px 10px;font:inherit;font-size:11px;cursor:pointer}
 .seg button.on{background:var(--accent);color:var(--accent-ink);font-weight:600}
 #codeWrap.big{flex-basis:72%}
 #flow{padding:10px;text-align:center}
@@ -311,14 +313,14 @@ table.res td pre{margin:0;white-space:pre-wrap;font:12px "JetBrains Mono",monosp
   .pane{overflow:visible}
 }
 /* Projector mode 投影模式 */
-html.proj body{font-size:16px}
-html.proj header h1{font-size:20px}
-html.proj .btn,html.proj .tabs-ex button,html.proj .ptabs button{font-size:15px}
-html.proj #code,html.proj .outbox,html.proj textarea,html.proj .now,html.proj .var,html.proj .cell{font-size:17px}
+html.proj body{font-size:14px}
+html.proj header h1{font-size:18px}
+html.proj .btn,html.proj .tabs-ex button,html.proj .ptabs button{font-size:13px}
+html.proj #code,html.proj .outbox,html.proj textarea,html.proj .now,html.proj .var,html.proj .cell{font-size:15px}
 html.proj .cell{min-width:46px;height:42px}
-html.proj #problem pre,html.proj #problem code{font-size:15px}
-html.proj .hint,html.proj label.small,html.proj .legend{font-size:14px}
-html.proj table.res,html.proj table.res td pre{font-size:15px}
+html.proj #problem pre,html.proj #problem code{font-size:13px}
+html.proj .hint,html.proj label.small,html.proj .legend{font-size:12px}
+html.proj table.res,html.proj table.res td pre{font-size:13px}
 </style>
 </head>
 <body>
@@ -1020,8 +1022,10 @@ Object.assign(J.forBlock, {
 /* ================= Workspace ================= */
 const darkQ = window.matchMedia('(prefers-color-scheme: dark)');
 const THEME_L = Blockly.Theme.defineTheme('vecLight', {name:'vecLight', base:Blockly.Themes.Classic,
+  fontStyle:{family:'sans-serif', size:10.5, weight:'normal'},
   componentStyles:{workspaceBackgroundColour:'#fbfaf7', toolboxBackgroundColour:'#f1eee7', toolboxForegroundColour:'#1f2328', flyoutBackgroundColour:'#e9e5dc', flyoutForegroundColour:'#1f2328', flyoutOpacity:1, scrollbarColour:'#b9b2a4'}});
 const THEME_D = Blockly.Theme.defineTheme('vecDark', {name:'vecDark', base:Blockly.Themes.Classic,
+  fontStyle:{family:'sans-serif', size:10.5, weight:'normal'},
   componentStyles:{workspaceBackgroundColour:'#1a1d21', toolboxBackgroundColour:'#262a30', toolboxForegroundColour:'#e7e9ec', flyoutBackgroundColour:'#23272d', flyoutForegroundColour:'#cfd3d8', flyoutOpacity:1, scrollbarColour:'#555b64', insertionMarkerColour:'#ffffff', cursorColour:'#d0d0d0'}});
 const isDark = () => { const t = document.documentElement.dataset.theme; return t ? t === 'dark' : darkQ.matches; };
 const ws = Blockly.inject('blocklyDiv', {
@@ -1067,11 +1071,11 @@ function renderProblem(){
   const e = EX[cur], t = e.tests[0];
   $('problem').innerHTML = `
     <div class="lvl">Example ${e.id} · ${e.lvl}</div>
-    <h2>${e.title} <span class="zh" style="font-size:14px">${e.zh}</span></h2>
+    <h2>${e.title} <span class="zh" style="font-size:12px">${e.zh}</span></h2>
     <h3>Problem 題目</h3><p>${e.en}</p><p class="zh">${e.zhs}</p>
     <h3>Input 輸入</h3><p>${e.inF}</p>
     <h3>Output 輸出</h3><p>${e.outF}</p>
-    <h3>Constraints 限制</h3><p class="mono" style="font-size:12.5px">${e.cons}</p>
+    <h3>Constraints 限制</h3><p class="mono" style="font-size:10.5px">${e.cons}</p>
     <h3>Sample 範例</h3>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><div><span class="hint">Input</span><pre>${t[0]}</pre></div><div><span class="hint">Output</span><pre>${t[1]}</pre></div></div>
     <div class="predict"><b>Predict 先猜：</b>${e.predict}<br><span class="hint">Check it in Trace. / 用「逐步追蹤」驗證。</span></div>
@@ -1393,7 +1397,7 @@ function buildFlow(){
   return {text:lines.join('\n'), map, rev};
 }
 function mmInit(){ if (window.mermaid) mermaid.initialize({startOnLoad:false, securityLevel:'strict', theme:isDark() ? 'dark' : 'neutral',
-  themeVariables:{fontFamily:'"JetBrains Mono","Noto Sans TC",monospace', fontSize:document.documentElement.classList.contains('proj') ? '17px' : '13px'}, flowchart:{curve:'basis', nodeSpacing:28, rankSpacing:34, useMaxWidth:false}}); }
+  themeVariables:{fontFamily:'"JetBrains Mono","Noto Sans TC",monospace', fontSize:document.documentElement.classList.contains('proj') ? '15px' : '11px'}, flowchart:{curve:'basis', nodeSpacing:28, rankSpacing:34, useMaxWidth:false}}); }
 mmInit();
 darkQ.addEventListener('change', () => { mmInit(); fcLast = ''; renderFlow(); });
 async function renderFlow(){
